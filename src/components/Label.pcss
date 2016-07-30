@@ -1,0 +1,19 @@
+@import "../lib/variables";
+
+
+.Label {
+  display: inline-block;
+  font-size: .875rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  margin-bottom: grid(2);
+  text-transform: uppercase;
+
+  & + input {
+    margin-top: grid(-1);
+  }
+
+  & + table {
+    margin-top: grid(-1);
+  }
+}

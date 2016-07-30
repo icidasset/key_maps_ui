@@ -1,0 +1,14 @@
+{
+  "presets": [
+    "metalab",
+    "metalab/compatibility"
+  ],
+  "plugins": [
+    "transform-bluebird"
+  ],
+  "env": {
+    "development": {
+      "sourceMaps": true
+    }
+  }
+}

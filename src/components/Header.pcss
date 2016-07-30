@@ -1,0 +1,41 @@
+@import "../lib/variables";
+
+
+.Header {
+  display: flex;
+  margin: 0 0 grid(3);
+  position: relative;
+  z-index: 9;
+}
+
+
+.logo {
+  background: $dark url(../images/map.svg) no-repeat 12.5% center;
+  background-size: auto 110%;
+  border-bottom-left-radius: $border-radius;
+  border-bottom-right-radius: $border-radius;
+  color: $light;
+  font-weight: 600;
+  letter-spacing: -0.0125em;
+  padding: grid(1.25) grid(2);
+  text-decoration: none;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-font-smoothing: gray-scale;
+}
+
+
+.Header a:not(.logo) {
+  align-items: center;
+  color: color($base03 a(.875));
+  display: inline-flex;
+  font-size: .9rem;
+  font-weight: 600;
+  margin-left: grid(2.5);
+  text-decoration: none;
+
+  &:global(.is-active) {
+    box-shadow: 0 -1px 0 0 currentColor inset;
+    color: $accent;
+  }
+}

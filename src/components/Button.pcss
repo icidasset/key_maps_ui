@@ -1,0 +1,26 @@
+@import "../lib/variables";
+
+
+.Button {
+  background: transparent;
+  border: 2px solid $dark;
+  border-radius: 4px;
+  color: $dark;
+  cursor: pointer;
+  display: inline-block;
+  font-size: .9em;
+  font-weight: 600;
+  padding: grid(.75) grid(1);
+
+  &:focus {
+    border-color: $accent;
+    color: $accent;
+    outline: none;
+  }
+
+  &:global(.is-error),
+  &:global(.is-destructive) {
+    border-color: $red;
+    color: $red;
+  }
+}

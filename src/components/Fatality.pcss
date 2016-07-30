@@ -1,0 +1,43 @@
+@import "../lib/variables";
+
+
+.Fatality {
+  height: 100vh;
+  position: relative;
+
+  & p {
+    color: $blue;
+  }
+
+  & p small {
+    font-size: 85%;
+  }
+}
+
+.icon {
+  margin-bottom: grid(2);
+
+  & svg {
+    fill: color($light shade(3.75));
+    height: 128px;
+    width: @height;
+  }
+}
+
+.subtle-text {
+  color: $mid;
+
+  & a {
+    color: $green;
+  }
+}
+
+.wrapper {
+  left: 50%;
+  max-width: grid(50);
+  padding: 0 grid(2);
+  position: absolute;
+  text-align: center;
+  top: 47.5%;
+  transform: translate(-50%, -50%);
+}

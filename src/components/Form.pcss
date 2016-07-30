@@ -1,0 +1,71 @@
+@import "../lib/variables";
+
+
+/**
+ * Groups
+ */
+.Form section {
+  margin: 0 0 grid(3);
+}
+
+
+/**
+ * Input
+ */
+.Form input:not([type="submit"]),
+.Form textarea {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid color($light shade(12.5%));
+  box-sizing: border-box;
+  color: $dark;
+  display: block;
+  font-size: 1.675rem;
+  font-weight: 300;
+  padding: grid(.75) 0;
+  resize: none;
+  transition: border-bottom-color 500ms ease;
+  width: 100%;
+
+  &::placeholder {
+    color: color($light shade(25%));
+    font-weight: 200;
+  }
+
+  &:global(.without-border) {
+    border: 0;
+  }
+
+  &:focus {
+    border-bottom-color: color($light shade(30%));
+    outline: none;
+  }
+
+  &:-webkit-autofill,
+  &:-webkit-autofill:focus {
+    box-shadow: 0 0 0px 1000px $light inset;
+  }
+
+  &.is-validatable:invalid {
+    border-bottom-color: $red;
+  }
+}
+
+
+.Form input[type="password"] {
+  letter-spacing: .325em;
+
+  &::placeholder {
+    letter-spacing: 0;
+  }
+}
+
+.Form textarea {
+  font-size: 1.275rem;
+  height: 7em;
+
+  &::placeholder {
+    font-size: 1.675rem;
+  }
+}
