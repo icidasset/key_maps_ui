@@ -12,6 +12,7 @@ import { CREATE_MAP_ITEM, FETCH_MAP_ITEMS, REMOVE_MAP_ITEM } from '../lib/types'
 import * as api from '../lib/api';
 
 
+// CREATE
 export const createMapItem = (instMap, attributes) => {
   let types;
   let varsMap;
@@ -44,6 +45,7 @@ export const createMapItem = (instMap, attributes) => {
 };
 
 
+// FETCH
 export const fetchMapItems = (mapName) => api.gql.query({
   query: gql`
     query _ ($map: String) {
@@ -63,6 +65,7 @@ export const fetchMapItems = (mapName) => api.gql.query({
 );
 
 
+// REMOVE
 export const removeMapItem = (id) => (dispatch) => {
   dispatch({ type: REMOVE_MAP_ITEM, payload: { id }});
 

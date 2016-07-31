@@ -1,11 +1,15 @@
 import { createElement } from 'react';
 import { browserHistory } from 'react-router';
 import { compose, lifecycle, withState } from 'recompose';
+import fget from 'lodash/fp/get';
+import map from 'lodash/fp/map';
 import TrashCan from 'react-icons/lib/go/trashcan';
 
 import Button from '../Button';
 import Container from '../Container';
 import EmptyState from '../EmptyState';
+import Form from '../Form';
+import Label from '../Label';
 
 import ListMapItems from '../MapItems/List';
 import NewMapItem from '../MapItems/New';
@@ -19,6 +23,14 @@ const remove = (mapID, removeMap) => () => {
 };
 
 
+const updateSetting = (instMap, updateMap, key) => (event) => {
+  updateMap(
+    instMap.id,
+    { settings: { ...instMap.settings, [key]: event.target.value }}
+  );
+};
+
+
 const Show = ({
   dispatch,
   instMap,
@@ -26,6 +38,7 @@ const Show = ({
   removeMap,
   removeMapItem,
   submitNewMapItemForm,
+  updateMap,
 }) => (
   <div>
 
@@ -47,6 +60,21 @@ const Show = ({
       </section>
 
       <section>
+        <h2>Settings</h2>
+
+        <Form>
+          <Label>Sort by</Label><br />
+          <select
+            defaultValue={fget('settings.uiSortBy', instMap)}
+            onChange={updateSetting(instMap, updateMap, 'uiSortBy')}
+          >
+            <option value="">---</option>
+            {map(k => (
+              <option key={k} value={k}>{k}</option>
+            ), Object.keys(instMap.types))}
+          </select>
+        </Form>
+
         <h2>Manage</h2>
 
         <Button onClick={remove(instMap.id, removeMap)} classNames={['is-destructive']}>
@@ -102,6 +130,6 @@ export default compose(
   })
 )(props => {
   if (props.instMap) return Show(props);
-  return (<Container><EmptyState>Loading ...</EmptyState></Container>);
+  return (<Container><section><EmptyState>Loading ...</EmptyState></section></Container>);
 
 })
