@@ -1,23 +1,24 @@
 import { createElement } from 'react';
 import { Link } from 'react-router';
 import CSSModules from 'react-css-modules';
-import styles from './List.pcss';
+import map from 'lodash/fp/map';
 
 import { urlifyMapName } from '../../lib/utils/maps';
+import styles from './List.pcss';
 
 
-const List = ({ maps }) => (
+const List = ({ items }) => (
   <div styleName="List">
-    {maps.map((m, idx) => {
+    {map(m => {
       const slug = urlifyMapName(m.name);
 
       return (
-        <Link to={`/maps/${slug}`} styleName="item" key={idx}>
+        <Link to={`/maps/${slug}`} styleName="item" key={m.id}>
           <span styleName="name">{m.name}</span>
           <span styleName="info"></span>
         </Link>
       );
-    })}
+    }, items)}
   </div>
 );
 

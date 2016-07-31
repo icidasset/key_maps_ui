@@ -36,22 +36,6 @@ export const createMap = (name, attributes, types) => api.gql.mutate({
 );
 
 
-export const removeMap = (id) => (dispatch) => {
-  dispatch({ type: REMOVE_MAP, payload: { id }});
-
-  return api.gql.mutate({
-    mutation: gql`
-      mutation _ ($id: ID) {
-        removeMap (id: $id) { id }
-      }
-    `,
-    variables: {
-      id,
-    },
-  });
-};
-
-
 export const fetchMaps = () => api.gql.query({
   query: gql`
     {
@@ -66,6 +50,22 @@ export const fetchMaps = () => api.gql.query({
 }).then(
   payload => ({ type: FETCH_MAPS, payload }),
 );
+
+
+export const removeMap = (id) => (dispatch) => {
+  dispatch({ type: REMOVE_MAP, payload: { id }});
+
+  return api.gql.mutate({
+    mutation: gql`
+      mutation _ ($id: ID) {
+        removeMap (id: $id) { id }
+      }
+    `,
+    variables: {
+      id,
+    },
+  });
+};
 
 
 /**

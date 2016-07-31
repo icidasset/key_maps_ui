@@ -18,7 +18,9 @@ const Dashboard = ({ dispatch, maps, submitNewMapForm }) => (
 
         ?
 
-        <MapsList maps={maps} />
+        <MapsList
+          items={maps}
+        />
 
         :
 

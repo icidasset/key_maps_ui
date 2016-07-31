@@ -1,10 +1,13 @@
 import { createElement } from 'react';
 import { browserHistory } from 'react-router';
+import { compose, lifecycle, withState } from 'recompose';
 import TrashCan from 'react-icons/lib/go/trashcan';
 
 import Button from '../Button';
 import Container from '../Container';
 import EmptyState from '../EmptyState';
+
+import ListMapItems from '../MapItems/List';
 import NewMapItem from '../MapItems/New';
 
 
@@ -16,7 +19,14 @@ const remove = (mapID, removeMap) => () => {
 };
 
 
-const Show = ({ dispatch, instMap, items, removeMap, submitNewMapItemForm }) => (
+const Show = ({
+  dispatch,
+  instMap,
+  instMapItems,
+  removeMap,
+  removeMapItem,
+  submitNewMapItemForm,
+}) => (
   <div>
 
     { /* TITLE */ }
@@ -52,11 +62,14 @@ const Show = ({ dispatch, instMap, items, removeMap, submitNewMapItemForm }) => 
         <h2>Items</h2>
 
         {
-          items.length
+          instMapItems.length
 
           ?
 
-          []
+          <ListMapItems
+            items={instMapItems}
+            removeMapItem={removeMapItem}
+          />
 
           :
 
@@ -71,7 +84,24 @@ const Show = ({ dispatch, instMap, items, removeMap, submitNewMapItemForm }) => 
 );
 
 
-export default props => {
+function fetchMapItems() {
+  if (this.props.instMap && !this.props.didFetchItems) {
+    this.props.fetchMapItems(this.props.instMap.name);
+    this.props.setDidFetchItems(true);
+  }
+}
+
+
+export default compose(
+  withState('didFetchItems', 'setDidFetchItems', false),
+  lifecycle({
+
+    componentWillMount() { fetchMapItems.call(this); },
+    componentWillReceiveProps() { fetchMapItems.call(this); },
+
+  })
+)(props => {
   if (props.instMap) return Show(props);
-  return (<EmptyState>Loading ...</EmptyState>);
-};
+  return (<Container><EmptyState>Loading ...</EmptyState></Container>);
+
+})

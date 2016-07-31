@@ -22,9 +22,10 @@ export function checkFormValidity(formEl) {
 }
 
 
-export function handleFormSubmit(dispatch, action, message) {
+export function handleFormSubmit(dispatch, action, message, resetForm = null) {
   return (event) => {
     event.preventDefault();
+    event.persist();
 
     // form is invalid, -> exit
     if (!checkFormValidity(event.target)) {
@@ -42,7 +43,24 @@ export function handleFormSubmit(dispatch, action, message) {
     dispatch(showLoader());
 
     action(event)
-      .then(() => message && toastr.success(message))
+      .then(() => {
+        if (message) {
+          toastr.success(message);
+        }
+
+        if (resetForm) {
+          const fields = []
+            .slice
+            .call(event.target.querySelectorAll('input, textarea'));
+
+          if (fields.length > 0) {
+            fields.forEach(n => n.classList.remove('is-validatable'));
+            fields[0].focus();
+          }
+
+          resetForm();
+        }
+      })
       .catch(errorHandler)
       .finally(() => dispatch(hideLoader()));
   };

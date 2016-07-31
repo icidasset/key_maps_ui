@@ -18,6 +18,7 @@ import {
 const New = ({
   dispatch,
   instMap,
+  resetForm,
   submitNewMapItemForm,
 
   fields: { attributes },
@@ -26,6 +27,7 @@ const New = ({
     dispatch,
     submitNewMapItemForm,
     `Added new item to the map "${instMap.name}"`,
+    resetForm
   )}>
 
     <section>
@@ -60,6 +62,7 @@ const New = ({
 export default reduxForm({
   form: 'map_items/new',
   fields: [
+    'map_id',
     'attributes[].type',
     'attributes[].key',
     'attributes[].value',
@@ -70,5 +73,6 @@ export default reduxForm({
       k => ({ type: ownProps.instMap.types[k], key: k, value: undefined }),
       Object.keys(ownProps.instMap.types)
     ),
+    map_id: ownProps.instMap.id,
   },
 }))(New);

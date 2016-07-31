@@ -36,7 +36,7 @@ n.use([
 
 export const _gql = new ApolloClient({
   networkInterface: n,
-  shouldBatch: true,
+  shouldBatch: false, // TODO: set to true and fix the issues
 });
 
 const _handleGQL = (method) => (...args) => {
