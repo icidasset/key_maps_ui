@@ -39,9 +39,9 @@ const mapStateToProps = (state, ownProps) => {
   );
 
   // url
-  const username = state.auth.user.username;
+  const id = state.auth.user.id;
   const mapName = instMap && instMap.name.toLowerCase();
-  const url = instMap && `${endpoint}/public/${username}/${mapName}`;
+  const url = instMap && `${endpoint}/public/${id}/${mapName}`;
 
   // ->
   return {

@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import Fatality from '../components/Fatality';
+import StateError from '../../components/State/Error';
 
 
 const mapStateToProps = (_, ownProps) => ({
@@ -7,4 +7,4 @@ const mapStateToProps = (_, ownProps) => ({
 });
 
 
-export default connect(mapStateToProps)(Fatality);
+export default connect(mapStateToProps)(StateError);

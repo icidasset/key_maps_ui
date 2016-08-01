@@ -17,7 +17,7 @@ const SignIn = ({
   submitSignInForm,
   children,
   dispatch,
-  fields: { login, password },
+  fields: { email },
 }) => (
   <CenterAbsolute>
     <Container>
@@ -29,17 +29,12 @@ const SignIn = ({
         )}>
 
           <section>
-            <Input field={login} type="text" placeholder="email, or username" required />
-            <Input field={password} type="password" placeholder="password" required />
+            <Input field={email} type="text" placeholder="email" required />
           </section>
 
           <section style={{ textAlign: 'right' }}>
-            <Button component="button" type="submit">Sign in</Button>
+            <Button component="button" type="submit">Sign in/up</Button>
           </section>
-
-          <Note>
-            Looking for the <Link to="/sign-up">sign-up</Link> page?
-          </Note>
 
         </Form>
       </section>

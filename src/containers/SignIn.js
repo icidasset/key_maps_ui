@@ -12,10 +12,7 @@ const _actions = pick(['submitSignInForm'], actions);
 
 const WithReduxForm = reduxForm({
   form: 'sign-in',
-  fields: [
-    'login',
-    'password',
-  ],
+  fields: ['email'],
 })(SignIn);
 
 
