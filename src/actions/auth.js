@@ -1,8 +1,9 @@
 import { browserHistory } from 'react-router';
 import { getValues } from 'redux-form';
+import decodeJWT from 'jwt-decode';
 
 import { AUTHENTICATE, DEAUTHENTICATE, RESET } from '../lib/types';
-import { AUTH_TOKEN_STORAGE_KEY, AUTH_USER_STORAGE_KEY } from '../lib/constants';
+import { AUTH_MESSAGE, AUTH_TOKEN_STORAGE_KEY, AUTH_USER_STORAGE_KEY } from '../lib/constants';
 import * as api from '../lib/api';
 
 import { fetchMaps } from './maps';
@@ -50,8 +51,19 @@ export const authenticateFromStorage = () => (dispatch) => {
 };
 
 
-const validateToken = token => {
-  return api.http('GET', `/validate-token?token=${token}`);
+export const exchangeAuth0Token = (auth0_id_token) => (dispatch) => {
+  return api.http('POST', '/auth/exchange', { auth0_id_token }).then(
+    ({ token }) => {
+      const { user } = decodeJWT(token);
+      dispatch(authenticate({ token, user }));
+      return null;
+    }
+  );
+};
+
+
+export const validateToken = (token) => {
+  return api.http('GET', `/auth/validate?token=${token}`);
 };
 
 
@@ -68,21 +80,8 @@ export const isSignedIn = () => (_, getState) => {
  */
 export const submitSignInForm = () => (dispatch, getState) => {
   const params = getValues(getState().form['sign-in']);
-
-  return api.http('POST', '/sign-in', params).then(data => {
-    dispatch(authenticate(data));
-    browserHistory.push('/');
-    return data;
-  });
-};
-
-
-export const submitSignUpForm = () => (dispatch, getState) => {
-  const params = getValues(getState().form['sign-up']);
-
-  return api.http('POST', '/sign-up', params).then(data => {
-    dispatch(authenticate(data));
-    browserHistory.push('/');
-    return data;
+  return api.http('POST', '/auth/start', params).then(() => {
+    browserHistory.push({ pathname: '/state/message', state: { message: `${AUTH_MESSAGE}.` }});
+    return null;
   });
 };

@@ -11,7 +11,7 @@ export function showErrorScreen(error, options, replace) {
   }
 
   (replace || browserHistory.push)({
-    pathname: '/fatality',
+    pathname: '/state/error',
     state: {
       error: error.replace(/\w+ \/ /, ''),
       origin: options.origin,

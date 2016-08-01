@@ -2,6 +2,7 @@ import { createElement } from 'react';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { Router, IndexRoute, Route, browserHistory } from 'react-router';
 import { bindActionCreators } from 'redux';
+import qs from 'query-string';
 import pick from 'lodash/fp/pick';
 
 import * as containers from '../containers';
@@ -21,9 +22,10 @@ export default function router(store) {
         <Route path="maps/:slug" component={c.Maps__Show} onEnter={t.requireAuth} />
 
         <Route path="sign-in" component={c.SignIn} />
-        <Route path="sign-up" component={c.SignUp} />
         <Route path="sign-out" component={c.SignOut} />
-        <Route path="fatality" component={c.Fatality} />
+
+        <Route path="state/error" component={c.State__Error} />
+        <Route path="state/message" component={c.State__Message} />
 
       </Route>
     </Router>
@@ -41,12 +43,29 @@ function buildTransitions(store) {
  */
 function preflight(store) {
   const a = bindActionCreators(
-    pick(['authenticateFromStorage'], actions),
+    pick(['authenticateFromStorage', 'exchangeAuth0Token'], actions),
     store.dispatch
   );
 
   return (_, replace, callback) => {
-    a.authenticateFromStorage().then(callback);
+    const parsedHash = qs.parse(window.location.hash.substr(1));
+    const idToken = parsedHash.id_token;
+
+    if (parsedHash.error_description) {
+      errorUtils.showErrorScreen(parsedHash.error_description, {}, replace);
+      callback();
+
+    } else if (idToken) {
+      replace('/');
+
+      a.exchangeAuth0Token(idToken)
+        .catch(err => errorUtils.showErrorScreen(err, {}, replace))
+        .finally(callback);
+
+    } else {
+      a.authenticateFromStorage().then(callback);
+
+    }
   };
 }
 
