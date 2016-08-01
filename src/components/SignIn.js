@@ -5,6 +5,7 @@ import Button from './Button';
 import CenterAbsolute from './CenterAbsolute';
 import Container from './Container';
 import Form from './Form';
+import Label from './Label';
 import Input from './Input';
 import Note from './Note';
 
@@ -29,11 +30,14 @@ const SignIn = ({
         )}>
 
           <section>
-            <Input field={email} type="text" placeholder="email" required />
+            <Label>Email</Label>
+            <Input field={email} type="email" placeholder="example@gmail.com" required />
           </section>
 
           <section style={{ textAlign: 'right' }}>
-            <Button component="button" type="submit">Sign in/up</Button>
+            <Button component="button" type="submit">
+              Sign in &nbsp;&nbsp;|&nbsp;&nbsp; sign up
+            </Button>
           </section>
 
         </Form>

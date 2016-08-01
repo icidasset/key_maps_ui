@@ -73,24 +73,29 @@ const Show = ({
         <h2>Settings</h2>
 
         <Form>
-          <Label>Sort by</Label><br />
-          <select
-            defaultValue={fget('settings.uiSortBy', instMap)}
-            onChange={updateSetting(instMap, updateMap, 'uiSortBy')}
-          >
-            <option value="">---</option>
-            {map(k => (
-              <option key={k} value={k}>{k}</option>
-            ), Object.keys(instMap.types))}
-          </select>
+          <p>
+            <Label>Sort by</Label>
+            <select
+              defaultValue={fget('settings.uiSortBy', instMap)}
+              onChange={updateSetting(instMap, updateMap, 'uiSortBy')}
+            >
+              <option value="">---</option>
+              {map(k => (
+                <option key={k} value={k}>{k}</option>
+              ), Object.keys(instMap.types))}
+            </select>
+          </p>
         </Form>
 
-        <br />
-        <h2>Manage</h2>
-
-        <Button onClick={remove(instMap.id, removeMap)} classNames={['is-destructive']}>
-          <TrashCan /> Remove from existence
-        </Button>
+        <p>
+          <br />
+          <Label>Delete</Label>
+          <div>
+            <Button onClick={remove(instMap.id, removeMap)} classNames={['is-destructive']}>
+              <TrashCan /> Remove from existence
+            </Button>
+          </div>
+        </p>
       </section>
     </Container>
 
