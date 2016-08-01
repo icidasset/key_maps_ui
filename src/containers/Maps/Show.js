@@ -7,6 +7,7 @@ import pick from 'lodash/fp/pick';
 import sortBy from 'lodash/fp/sortBy';
 
 import { urlifyMapName } from '../../lib/utils/maps';
+import { endpoint } from '../../lib/api';
 import Maps__Show from '../../components/Maps/Show';
 import actions from '../../actions';
 
@@ -26,6 +27,7 @@ const mapStateToProps = (state, ownProps) => {
     state.maps.collection
   );
 
+  // items
   const sortKey = (fget('settings.uiSortBy', instMap)) ||
                   (instMap && Object.keys(instMap.types)[0]);
 
@@ -36,9 +38,16 @@ const mapStateToProps = (state, ownProps) => {
     state.mapItems.collection
   );
 
+  // url
+  const username = state.auth.user.username;
+  const mapName = instMap && instMap.name.toLowerCase();
+  const url = instMap && `${endpoint}/public/${username}/${mapName}`;
+
+  // ->
   return {
     instMap,
     instMapItems,
+    url,
   };
 };
 

@@ -5,6 +5,8 @@ import fget from 'lodash/fp/get';
 import map from 'lodash/fp/map';
 import TrashCan from 'react-icons/lib/go/trashcan';
 
+import styles from './Show.pcss';
+
 import Button from '../Button';
 import Container from '../Container';
 import EmptyState from '../EmptyState';
@@ -39,12 +41,20 @@ const Show = ({
   removeMapItem,
   submitNewMapItemForm,
   updateMap,
+  url,
 }) => (
   <div>
 
     { /* TITLE */ }
     <Container>
-      <h1>{instMap.name}</h1>
+      <section>
+        <h1>{instMap.name}</h1>
+
+        <div className={styles.url}>
+          <span className={styles.urlLabel}>URL</span>
+          <a href={url}>{url}</a>
+        </div>
+      </section>
     </Container>
 
 
@@ -75,6 +85,7 @@ const Show = ({
           </select>
         </Form>
 
+        <br />
         <h2>Manage</h2>
 
         <Button onClick={remove(instMap.id, removeMap)} classNames={['is-destructive']}>

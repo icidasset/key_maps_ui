@@ -10,10 +10,7 @@ const transformPromise = p => Promise.resolve(p);
 /**
  * Endpoint
  */
-export const endpoint =
-  window.location.host.includes('surge.sh') ?
-  'https://keymaps-api.herokuapp.com' :
-  'http://localhost:4000' ;
+export const endpoint = process.env.API_URL;
 
 
 /**

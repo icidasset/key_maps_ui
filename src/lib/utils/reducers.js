@@ -7,31 +7,31 @@ import flow from 'lodash/fp/flow';
 const keepOther = col => item => filter(c => c.id !== item.id, col);
 
 
-export const doCreate = (state, { payload }, sort) => ({
+export const doCreate = (state, { payload }, manipulate) => ({
   ...state,
 
   collection: flow(
     keepOther(state.collection),
     concat(payload),
-    sort
+    manipulate
   )(payload),
 });
 
 
-export const doDelete = (state, { payload }, sort) => ({
+export const doDelete = (state, { payload }, manipulate) => ({
   ...state,
 
   collection: flow(
     keepOther(state.collection),
-    sort
+    manipulate
   )(payload),
 });
 
 
-export const doFetch = (state, { payload }, sort) => ({
+export const doFetch = (state, { payload }, manipulate) => ({
   ...state,
 
-  collection: sort(payload),
+  collection: manipulate(payload),
 });
 
 

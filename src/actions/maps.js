@@ -1,6 +1,7 @@
 import { getValues } from 'redux-form';
-import fromPairs from 'lodash/fp/fromPairs';
 import gql from 'graphql-tag';
+
+import fromPairs from 'lodash/fp/fromPairs';
 import map from 'lodash/fp/map';
 
 import { CREATE_MAP, FETCH_MAPS, REMOVE_MAP, UPDATE_MAP } from '../lib/types';

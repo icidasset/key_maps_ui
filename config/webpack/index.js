@@ -38,6 +38,7 @@ export default () => partial(
 
       new webpack.DefinePlugin({
         'process.env.NODE_ENV': `"${process.env.ENV}"`,
+        'process.env.API_URL': `"${process.env.API_URL || '//localhost:4000'}"`,
       }),
     ],
   },
