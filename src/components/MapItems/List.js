@@ -35,7 +35,7 @@ const List = ({ items, removeMapItem }) => (
               )
             }
             </td>
-            <td>
+            <td data-action>
               <a onClick={remove(i.id, removeMapItem)}>
                 <TrashCan />
               </a>

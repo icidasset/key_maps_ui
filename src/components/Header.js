@@ -11,8 +11,16 @@ const Header = ({ isSignedIn }) => (
 
       <IndexLink to="/" className={styles.logo} tabIndex="-1">Key Maps</IndexLink>
 
-      <IndexLink to="/" activeClassName="is-active">Dashboard</IndexLink>
-      { isSignedIn && <Link to="/sign-out">Sign out</Link> }
+      {
+        isSignedIn &&
+
+        (
+          <div className={styles.links}>
+            <IndexLink to="/" activeClassName="is-active">Dashboard</IndexLink>
+            <Link to="/sign-out">Sign out</Link>
+          </div>
+        )
+      }
 
     </Container>
   </header>
