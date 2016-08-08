@@ -1,3 +1,4 @@
+import { browserHistory } from 'react-router';
 import { getValues } from 'redux-form';
 import gql from 'graphql-tag';
 
@@ -5,6 +6,7 @@ import fromPairs from 'lodash/fp/fromPairs';
 import map from 'lodash/fp/map';
 
 import { CREATE_MAP, FETCH_MAPS, REMOVE_MAP, UPDATE_MAP } from '../lib/types';
+import { urlifyMapName } from '../lib/utils/maps';
 import * as api from '../lib/api';
 
 
@@ -120,5 +122,10 @@ export const submitNewMapForm = () => (dispatch, getState) => {
   const attributes = map(a => a.name, params.attributes);
   const types = fromPairs(map(a => [a.name, a.type], params.attributes));
 
-  return dispatch(createMap(params.name, attributes, types));
+  return dispatch(createMap(params.name, attributes, types)).then(
+    (action) => {
+      if (action.payload) browserHistory.push(`/maps/${urlifyMapName(action.payload.name)}`);
+      return action;
+    }
+  );
 };

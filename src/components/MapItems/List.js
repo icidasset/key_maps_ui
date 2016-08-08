@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import map from 'lodash/fp/map';
 import toPairs from 'lodash/fp/toPairs';
-import TrashCan from 'react-icons/lib/go/trashcan';
+import TrashCanIcon from 'react-icons/lib/go/trashcan';
 
 import Table from '../Table';
 import styles from './List.pcss';
@@ -37,7 +37,7 @@ const List = ({ items, removeMapItem }) => (
             </td>
             <td data-action>
               <a onClick={remove(i.id, removeMapItem)}>
-                <TrashCan />
+                <TrashCanIcon />
               </a>
             </td>
           </tr>

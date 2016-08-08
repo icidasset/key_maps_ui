@@ -15,9 +15,9 @@
   border-bottom-left-radius: $border-radius;
   border-bottom-right-radius: $border-radius;
   color: $light;
-  font-size: .875rem;
+  font-size: .85rem;
   font-weight: bold;
-  letter-spacing: 0.0125em;
+  letter-spacing: 0.025em;
   padding: grid(1.25) grid(2);
   text-decoration: none;
   text-transform: uppercase;
@@ -34,7 +34,7 @@
 }
 
 
-.Header a:not(.logo) {
+.Header .links a {
   align-items: center;
   color: color($base03 a(.875));
   display: inline-flex;
@@ -47,5 +47,14 @@
   &:global(.is-active) {
     box-shadow: 0 -1px 0 0 currentColor inset;
     color: $accent;
+  }
+
+  &:global(.is-less-important) {
+    opacity: .5;
+  }
+
+  & svg {
+    height: 1.3em;
+    width: @height;
   }
 }

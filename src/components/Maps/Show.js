@@ -3,7 +3,7 @@ import { browserHistory } from 'react-router';
 import { compose, lifecycle, withState } from 'recompose';
 import fget from 'lodash/fp/get';
 import map from 'lodash/fp/map';
-import TrashCan from 'react-icons/lib/go/trashcan';
+import TrashCanIcon from 'react-icons/lib/go/trashcan';
 
 import styles from './Show.pcss';
 
@@ -92,7 +92,7 @@ const Show = ({
           <Label>Delete</Label>
           <div>
             <Button onClick={remove(instMap.id, removeMap)} classNames={['is-destructive']}>
-              <TrashCan /> Remove from existence
+              <TrashCanIcon /> Remove from existence
             </Button>
           </div>
         </p>

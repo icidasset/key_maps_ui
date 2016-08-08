@@ -1,12 +1,14 @@
 import { createElement } from 'react';
+import { browserHistory } from 'react-router';
 import { reduxForm } from 'redux-form';
 
 import ContentEditable from 'react-contenteditable';
-import TrashCan from 'react-icons/lib/go/trashcan';
+import TrashCanIcon from 'react-icons/lib/go/trashcan';
 
 import slug from 'slug';
 
 import Button from '../Button';
+import ButtonGroup from '../ButtonGroup';
 import Form from '../Form';
 import Input from '../Input';
 import Label from '../Label';
@@ -95,7 +97,7 @@ const New = ({
               </td>
               <td data-action>
                 <a onClick={() => attributes.removeField(idx)}>
-                  <TrashCan />
+                  <TrashCanIcon />
                 </a>
               </td>
             </tr>
@@ -110,7 +112,13 @@ const New = ({
     </section>
 
     <section style={{ textAlign: 'right' }}>
-      <Button component="button" type="submit">Create map</Button>
+      <ButtonGroup>
+        <Button
+          onClick={() => browserHistory.push('/')}
+          classNames={['is-destructive']}
+        >Cancel</Button>
+        <Button component="button" type="submit">Create map</Button>
+      </ButtonGroup>
     </section>
 
   </Form>

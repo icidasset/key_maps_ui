@@ -22,8 +22,9 @@ const _actions = pick([
 
 
 const mapStateToProps = (state, ownProps) => {
+  const slug = urlifyMapName(ownProps.params.slug);
   const instMap = find(
-    m => urlifyMapName(m.name) === ownProps.params.slug,
+    m => urlifyMapName(m.name) === slug,
     state.maps.collection
   );
 
@@ -40,7 +41,7 @@ const mapStateToProps = (state, ownProps) => {
 
   // url
   const id = state.auth.user.id;
-  const mapName = instMap && instMap.name.toLowerCase();
+  const mapName = instMap && urlifyMapName(instMap.name);
   const url = instMap && `${endpoint}/public/${id}/${mapName}`;
 
   // ->

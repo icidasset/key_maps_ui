@@ -5,7 +5,7 @@ import Dashboard from '../components/Dashboard';
 import actions from '../actions';
 
 
-const _actions = pick(['submitNewMapForm'], actions);
+const _actions = pick([], actions);
 
 
 const mapStateToProps = state => ({

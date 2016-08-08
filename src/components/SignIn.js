@@ -36,7 +36,7 @@ const SignIn = ({
 
           <section style={{ textAlign: 'right' }}>
             <Button component="button" type="submit">
-              Sign in &nbsp;&nbsp;|&nbsp;&nbsp; Sign up
+              Sign in
             </Button>
           </section>
 

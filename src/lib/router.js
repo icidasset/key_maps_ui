@@ -19,6 +19,13 @@ export default function router(store) {
     <Router history={h}>
       <Route path="/" component={c.App} onEnter={t.preflight}>
         <IndexRoute component={c.Dashboard} onEnter={t.requireAuth} />
+
+        { /* Modals */ }
+        <Route onEnter={t.isModal}>
+          <Route path="maps/new" component={c.Maps__New} onEnter={t.requireAuth} />
+        </Route>
+
+        { /* Other */ }
         <Route path="maps/:slug" component={c.Maps__Show} onEnter={t.requireAuth} />
 
         <Route path="sign-in" component={c.SignIn} />
@@ -33,14 +40,26 @@ export default function router(store) {
 };
 
 
-function buildTransitions(store) {
-  return { requireAuth: requireAuth(store), preflight: preflight(store) };
-}
+const buildTransitions = (store) => ({
+  isModal: isModal(),
+  requireAuth: requireAuth(store),
+  preflight: preflight(store),
+});
 
 
 /**
  * Transitions
  */
+function isModal() {
+  return (nextState, replace) => {
+    const loc = nextState.location;
+    if (!(loc.state && loc.state.modal)) {
+      replace({ pathname: loc.pathname, state: { ...loc.state, modal: true }});
+    }
+  };
+}
+
+
 function preflight(store) {
   const a = bindActionCreators(
     pick(['authenticateFromStorage', 'exchangeAuth0Token'], actions),

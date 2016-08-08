@@ -63,6 +63,10 @@ export const http = (method, path, params) => {
       'Authorization': localStorage.getItem(AUTH_TOKEN_STORAGE_KEY),
     },
   })
+  .then(res => {
+    if (!res.ok) throw new Error(res.statusText);
+    return res;
+  })
   .then(res => res.json())
   .then(res => {
     if (res.data) return res.data;
