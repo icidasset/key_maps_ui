@@ -31,7 +31,10 @@ const SAMPLE_ATTRIBUTE = { name: 'example', type: ATTRIBUTE_TYPES[0] };
  * Utils
  */
 function slugifyName(t) {
-  return slug(t.trim().replace(/&nbsp;/g, '').toLowerCase());
+  return slug(
+    t.trim().replace(/&nbsp;/g, ''),
+    { lower: true, replacement: '_', remove: /[-]/g }
+  );
 }
 
 
@@ -70,24 +73,17 @@ const New = ({
               <td>
                 <ContentEditable
                   html={a.name.value}
-                  onChange={(event) => {
-                    attributes.removeField(idx);
-                    attributes.addField({
-                      name: slugifyName(event.target.value),
-                      type: a.type.value,
-                    }, idx);
+                  onChange={e => {
+                    const name = slugifyName(e.target.value);
+                    a.name.onChange(name);
                   }}
                 />
               </td>
               <td>
                 <select
                   value={a.type.value}
-                  onChange={event => {
-                    attributes.removeField(idx);
-                    attributes.addField({
-                      name: a.name.value,
-                      type: event.target.value,
-                    }, idx);
+                  onChange={e => {
+                    a.type.onChange(e.target.value);
                   }}
                 >
                   {ATTRIBUTE_TYPES.map((t, idx) => (
