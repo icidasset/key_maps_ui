@@ -1,3 +1,21 @@
-.List strong {
-  font-weight: 600;
+@import "../../lib/variables";
+
+
+.List table tbody td {
+  padding-top: grid(1);
+}
+
+
+.List .dataRow {
+  font-weight: normal;
+  margin-bottom: grid(1);
+
+  & > span {
+    color: color($dark a(.35));
+    display: inline-block;
+    font-size: .95em;
+    font-weight: 600;
+  }
+
+  & > div {}
 }

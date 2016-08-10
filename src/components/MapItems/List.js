@@ -3,8 +3,10 @@ import map from 'lodash/fp/map';
 import toPairs from 'lodash/fp/toPairs';
 import TrashCanIcon from 'react-icons/lib/go/trashcan';
 
-import Table from '../Table';
 import styles from './List.pcss';
+
+import LabelBlock from '../LabelBlock';
+import Table from '../Table';
 
 
 const remove = (mapItemID, removeMapItem) => () => {
@@ -30,7 +32,12 @@ const List = ({ items, removeMapItem }) => (
             <td>
             {
               map(
-                x => (<div key={x[0]}><strong>{x[0]}</strong>: <span>{x[1]}</span><br /></div>),
+                x => (
+                  <div className={styles.dataRow} key={x[0]}>
+                    <span>{x[0]}</span>
+                    <div>{x[1]}</div>
+                  </div>
+                ),
                 toPairs(i.attributes)
               )
             }

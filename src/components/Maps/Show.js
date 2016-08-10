@@ -3,15 +3,20 @@ import { browserHistory } from 'react-router';
 import { compose, lifecycle, withState } from 'recompose';
 import fget from 'lodash/fp/get';
 import map from 'lodash/fp/map';
-import TrashCanIcon from 'react-icons/lib/go/trashcan';
 
+import { urlifyMapName } from '../../lib/utils/maps';
 import styles from './Show.pcss';
 
+import PlusIcon from 'react-icons/lib/go/plus';
+import TrashCanIcon from 'react-icons/lib/go/trashcan';
+
 import Button from '../Button';
+import CommandBar from '../CommandBar';
 import Container from '../Container';
 import EmptyState from '../EmptyState';
 import Form from '../Form';
 import Label from '../Label';
+import LabelBlock from '../LabelBlock';
 
 import ListMapItems from '../MapItems/List';
 import NewMapItem from '../MapItems/New';
@@ -33,6 +38,55 @@ const updateSetting = (instMap, updateMap, key) => (event) => {
 };
 
 
+const actions = (instMap) => [
+  {
+    onClick: () => browserHistory.push(`/maps/${urlifyMapName(instMap.name)}/add`),
+    label: (<span><PlusIcon /> Add item</span>),
+  },
+];
+
+
+// <Container>
+//   <section>
+//     <h2>Add new item</h2>
+//     <NewMapItem
+//       dispatch={dispatch}
+//       instMap={instMap}
+//       submitNewMapItemForm={submitNewMapItemForm}
+//     />
+//   </section>
+//
+//   <section>
+//     <h2>Settings</h2>
+//
+//     <Form>
+//       <p>
+//         <Label>Sort by</Label>
+//         <select
+//           defaultValue={fget('settings.uiSortBy', instMap)}
+//           onChange={updateSetting(instMap, updateMap, 'uiSortBy')}
+//         >
+//           <option value="">---</option>
+//           {map(k => (
+//             <option key={k} value={k}>{k}</option>
+//           ), Object.keys(instMap.types))}
+//         </select>
+//       </p>
+//     </Form>
+//
+//     <p>
+//       <br />
+//       <Label>Delete</Label>
+//       <div>
+//         <Button onClick={remove(instMap.id, removeMap)} classNames={['is-destructive']}>
+//           <TrashCanIcon /> Remove from existence
+//         </Button>
+//       </div>
+//     </p>
+//   </section>
+// </Container>
+
+
 const Show = ({
   dispatch,
   instMap,
@@ -48,12 +102,14 @@ const Show = ({
     { /* TITLE */ }
     <Container>
       <section>
-        <h1>{instMap.name}</h1>
+        <h1 className={styles.title}>{instMap.name}</h1>
 
         <div className={styles.url}>
-          <span className={styles.urlLabel}>URL</span>
+          <LabelBlock>URL</LabelBlock>
           <a href={url}>{url}</a>
         </div>
+
+        <CommandBar actions={actions(instMap)} />
       </section>
     </Container>
 
@@ -61,50 +117,6 @@ const Show = ({
     { /* ITEMS */ }
     <Container>
       <section>
-        <h2>Add new item</h2>
-        <NewMapItem
-          dispatch={dispatch}
-          instMap={instMap}
-          submitNewMapItemForm={submitNewMapItemForm}
-        />
-      </section>
-
-      <section>
-        <h2>Settings</h2>
-
-        <Form>
-          <p>
-            <Label>Sort by</Label>
-            <select
-              defaultValue={fget('settings.uiSortBy', instMap)}
-              onChange={updateSetting(instMap, updateMap, 'uiSortBy')}
-            >
-              <option value="">---</option>
-              {map(k => (
-                <option key={k} value={k}>{k}</option>
-              ), Object.keys(instMap.types))}
-            </select>
-          </p>
-        </Form>
-
-        <p>
-          <br />
-          <Label>Delete</Label>
-          <div>
-            <Button onClick={remove(instMap.id, removeMap)} classNames={['is-destructive']}>
-              <TrashCanIcon /> Remove from existence
-            </Button>
-          </div>
-        </p>
-      </section>
-    </Container>
-
-
-    { /* ITEMS */ }
-    <Container>
-      <section>
-        <h2>Items</h2>
-
         {
           instMapItems.length
 
@@ -148,4 +160,4 @@ export default compose(
   if (props.instMap) return Show(props);
   return (<Container><section><EmptyState>Loading ...</EmptyState></section></Container>);
 
-})
+});
