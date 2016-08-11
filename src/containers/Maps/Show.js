@@ -16,17 +16,12 @@ const _actions = pick([
   'fetchMapItems',
   'removeMap',
   'removeMapItem',
-  'submitNewMapItemForm',
-  'updateMap',
 ], actions);
 
 
 const mapStateToProps = (state, ownProps) => {
   const slug = urlifyMapName(ownProps.params.slug);
-  const instMap = find(
-    m => urlifyMapName(m.name) === slug,
-    state.maps.collection
-  );
+  const instMap = find(m => urlifyMapName(m.name) === slug, state.maps.collection);
 
   // items
   const sortKey = (fget('settings.uiSortBy', instMap)) ||
@@ -41,14 +36,14 @@ const mapStateToProps = (state, ownProps) => {
 
   // url
   const id = state.auth.user.id;
-  const mapName = instMap && urlifyMapName(instMap.name);
-  const url = instMap && `${endpoint}/public/${id}/${mapName}`;
+  const url = instMap && `${endpoint}/public/${id}/${slug}`;
 
   // ->
   return {
     instMap,
     instMapItems,
     url,
+    slug,
   };
 };
 

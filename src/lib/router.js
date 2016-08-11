@@ -23,6 +23,8 @@ export default function router(store) {
         { /* Modals */ }
         <Route onEnter={t.isModal}>
           <Route path="maps/new" component={c.Maps__New} onEnter={t.requireAuth} />
+          <Route path="maps/:slug/new" component={c.MapItems__New} onEnter={t.requireAuth} />
+          <Route path="maps/:slug/settings" component={c.Maps__Settings} onEnter={t.requireAuth} />
         </Route>
 
         { /* Other */ }

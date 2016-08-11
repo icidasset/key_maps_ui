@@ -1,8 +1,11 @@
 import { createElement } from 'react';
+import { browserHistory } from 'react-router';
 import { reduxForm } from 'redux-form';
 import map from 'lodash/fp/map';
 
 import Button from '../Button';
+import ButtonGroup from '../ButtonGroup';
+import EmptyState from '../EmptyState';
 import Form from '../Form';
 import Input from '../Input';
 import Label from '../Label';
@@ -19,6 +22,7 @@ const New = ({
   dispatch,
   instMap,
   resetForm,
+  slug,
   submitNewMapItemForm,
 
   fields: { attributes },
@@ -44,7 +48,6 @@ const New = ({
           field: a.value,
           type: type,
           placeholder: a.key.value,
-          required: true,
         };
 
         return (<Input {...attr} />);
@@ -52,14 +55,20 @@ const New = ({
     </section>
 
     <section style={{ textAlign: 'right' }}>
-      <Button component="button" type="submit">Add item</Button>
+      <ButtonGroup>
+        <Button
+          onClick={() => browserHistory.push(`/maps/${slug}`)}
+          classNames={['is-destructive']}
+        >Close</Button>
+        <Button component="button" type="submit">Add item</Button>
+      </ButtonGroup>
     </section>
 
   </Form>
 );
 
 
-export default reduxForm({
+const NewForm = reduxForm({
   form: 'map_items/new',
   fields: [
     'map_id',
@@ -76,3 +85,10 @@ export default reduxForm({
     map_id: ownProps.instMap.id,
   },
 }))(New);
+
+
+export default (props) => (
+  props.instMap ?
+    (<NewForm {...props} />) :
+    (<EmptyState>Loading ...</EmptyState>)
+);

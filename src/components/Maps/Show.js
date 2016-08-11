@@ -1,12 +1,10 @@
 import { createElement } from 'react';
 import { browserHistory } from 'react-router';
 import { compose, lifecycle, withState } from 'recompose';
-import fget from 'lodash/fp/get';
-import map from 'lodash/fp/map';
 
-import { urlifyMapName } from '../../lib/utils/maps';
 import styles from './Show.pcss';
 
+import SettingsIcon from 'react-icons/lib/go/settings';
 import PlusIcon from 'react-icons/lib/go/plus';
 import TrashCanIcon from 'react-icons/lib/go/trashcan';
 
@@ -14,7 +12,6 @@ import Button from '../Button';
 import CommandBar from '../CommandBar';
 import Container from '../Container';
 import EmptyState from '../EmptyState';
-import Form from '../Form';
 import Label from '../Label';
 import LabelBlock from '../LabelBlock';
 
@@ -30,71 +27,29 @@ const remove = (mapID, removeMap) => () => {
 };
 
 
-const updateSetting = (instMap, updateMap, key) => (event) => {
-  updateMap(
-    instMap.id,
-    { settings: { ...instMap.settings, [key]: event.target.value }}
-  );
-};
-
-
-const actions = (instMap) => [
+const actions = (slug, instMap, removeMap) => [
   {
-    onClick: () => browserHistory.push(`/maps/${urlifyMapName(instMap.name)}/add`),
+    onClick: () => browserHistory.push(`/maps/${slug}/new`),
     label: (<span><PlusIcon /> Add item</span>),
+  },
+  {
+    onClick: () => browserHistory.push(`/maps/${slug}/settings`),
+    label: (<span><SettingsIcon /> Settings</span>),
+  },
+  {
+    onClick: remove(instMap.id, removeMap),
+    label: (<span><TrashCanIcon /> Remove map</span>),
   },
 ];
 
 
-// <Container>
-//   <section>
-//     <h2>Add new item</h2>
-//     <NewMapItem
-//       dispatch={dispatch}
-//       instMap={instMap}
-//       submitNewMapItemForm={submitNewMapItemForm}
-//     />
-//   </section>
-//
-//   <section>
-//     <h2>Settings</h2>
-//
-//     <Form>
-//       <p>
-//         <Label>Sort by</Label>
-//         <select
-//           defaultValue={fget('settings.uiSortBy', instMap)}
-//           onChange={updateSetting(instMap, updateMap, 'uiSortBy')}
-//         >
-//           <option value="">---</option>
-//           {map(k => (
-//             <option key={k} value={k}>{k}</option>
-//           ), Object.keys(instMap.types))}
-//         </select>
-//       </p>
-//     </Form>
-//
-//     <p>
-//       <br />
-//       <Label>Delete</Label>
-//       <div>
-//         <Button onClick={remove(instMap.id, removeMap)} classNames={['is-destructive']}>
-//           <TrashCanIcon /> Remove from existence
-//         </Button>
-//       </div>
-//     </p>
-//   </section>
-// </Container>
-
-
 const Show = ({
-  dispatch,
   instMap,
   instMapItems,
   removeMap,
   removeMapItem,
+  slug,
   submitNewMapItemForm,
-  updateMap,
   url,
 }) => (
   <div>
@@ -109,7 +64,7 @@ const Show = ({
           <a href={url}>{url}</a>
         </div>
 
-        <CommandBar actions={actions(instMap)} />
+        <CommandBar actions={actions(slug, instMap, removeMap)} />
       </section>
     </Container>
 
