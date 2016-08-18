@@ -2,7 +2,7 @@ import { HIDE_LOADER, SHOW_LOADER } from '../lib/types';
 
 
 const initialState = {
-  isShown: false, // TODO: When you show the loader by default, set this to 'true'
+  isShown: true,
 };
 
 

@@ -85,3 +85,47 @@ h2 {
   }
 
 }
+
+
+/**
+ * Loader
+ */
+:global(#loader) {
+  background-color: $light;
+  bottom: 0;
+  display: none;
+  left: 0;
+  opacity: 0;
+  pointer-events: none;
+  position: fixed;
+  right: 0;
+  top: 0;
+  transition: 500ms opacity;
+  z-index: 9999999999;
+
+  & :global(.loader) {
+    left: 50%;
+    position: absolute;
+    top: 48%;
+
+    &:after {
+      content: "loading ...";
+      font-size: .825em;
+      left: 50%;
+      letter-spacing: .05em;
+      position: absolute;
+      text-transform: uppercase;
+      top: 47px;
+      transform: translateX(-50%);
+      white-space: nowrap;
+    }
+  }
+
+  & :global(.loader-inner > div) {
+    border-color: $dark;
+  }
+}
+
+
+:global(body.show-loader #loader) { display: block; }
+:global(body.fadein-loader #loader) { opacity: 1; }

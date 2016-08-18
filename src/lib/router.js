@@ -80,13 +80,17 @@ function isModal() {
 
 function preflight(store) {
   const a = bindActionCreators(
-    pick(['authenticateFromStorage', 'exchangeAuth0Token'], actions),
+    pick(['authenticateFromStorage', 'exchangeAuth0Token', 'hideLoader'], actions),
     store.dispatch
   );
 
-  return (_, replace, callback) => {
+  return (_, replace, _callback) => {
     const parsedHash = qs.parse(window.location.hash.substr(1));
     const idToken = parsedHash.id_token;
+    const callback = () => {
+      a.hideLoader();
+      return _callback();
+    };
 
     // if ERROR
     if (parsedHash.error_description) {

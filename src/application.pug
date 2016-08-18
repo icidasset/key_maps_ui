@@ -10,12 +10,21 @@ html
 
     if assets['application.css']
       link(rel="stylesheet" href="/" + assets['application.css'].path)
+      link(rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/loaders.css/0.1.2/loaders.min.css")
       link(rel="stylesheet" href="https://fonts.googleapis.com/css?family=Assistant:200,300,400,600,700")
 
 
-  body
+  body.show-loader.fadein-loader
 
     #react-mount
+
+
+    #loader
+      .loader
+        .loader-inner.ball-scale-ripple-multiple
+          div
+          div
+          div
 
 
     block scripts
