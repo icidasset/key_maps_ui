@@ -6,7 +6,7 @@ import flow from 'lodash/fp/flow';
 import pick from 'lodash/fp/pick';
 import sortBy from 'lodash/fp/sortBy';
 
-import { urlifyMapName } from '../../lib/utils/maps';
+import { retrieveMap } from '../../lib/utils/maps';
 import { endpoint } from '../../lib/api';
 import Maps__Show from '../../components/Maps/Show';
 import actions from '../../actions';
@@ -20,8 +20,7 @@ const _actions = pick([
 
 
 const mapStateToProps = (state, ownProps) => {
-  const slug = urlifyMapName(ownProps.params.slug);
-  const instMap = find(m => urlifyMapName(m.name) === slug, state.maps.collection);
+  const [ instMap, slug ] = retrieveMap(ownProps.params.slug, state.maps.collection);
 
   // items
   const sortKey = (fget('settings.uiSortBy', instMap)) ||

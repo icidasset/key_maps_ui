@@ -8,11 +8,11 @@ import keys from 'lodash/fp/keys';
 import map from 'lodash/fp/map';
 import reduce from 'lodash/fp/reduce';
 
-import { CREATE_MAP_ITEM, FETCH_MAP_ITEMS, REMOVE_MAP_ITEM } from '../lib/types';
+import { CREATE_MAP_ITEM, CREATE_MAP_ITEMS, FETCH_MAP_ITEMS, REMOVE_MAP_ITEM } from '../lib/types';
 import * as api from '../lib/api';
 
 
-// CREATE
+// CREATE - SINGLE
 export const createMapItem = (instMap, attributes) => {
   let types;
   let varsMap;
@@ -43,6 +43,26 @@ export const createMapItem = (instMap, attributes) => {
     payload => ({ type: CREATE_MAP_ITEM, payload }),
   );
 };
+
+
+// CREATE - MULTIPLE
+export const createMapItems = (instMap, items) => api.gql.mutate({
+  mutation: gql`
+    mutation _ ($map: String, $items: String) {
+      createMapItems (map: $map, items: $items) {
+        id,
+        map_id,
+        attributes
+      }
+    }
+  `,
+  variables: {
+    items: encodeToUrlSafeBase64(items),
+    map: instMap.name,
+  },
+}).then(
+  payload => ({ type: CREATE_MAP_ITEMS, payload }),
+);
 
 
 // FETCH
@@ -91,4 +111,24 @@ export const submitNewMapItemForm = () => (dispatch, getState) => {
   const instMap = find(m => m.id === params.map_id, getState().maps.collection);
 
   return dispatch(createMapItem(instMap, attributes));
+};
+
+
+export const submitImportForm = () => (dispatch, getState) => {
+  const params = getValues(getState().form['map_items/import']);
+  const instMap = find(m => m.id === params.map_id, getState().maps.collection);
+  const items = JSON.parse(params.json);
+
+  return dispatch(createMapItems(instMap, items));
+};
+
+
+/**
+ * Private
+ */
+function encodeToUrlSafeBase64(obj) {
+  return btoa(encodeURIComponent(JSON.stringify(obj)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/\=+$/, '');
 };

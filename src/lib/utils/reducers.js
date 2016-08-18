@@ -2,6 +2,7 @@ import concat from 'lodash/fp/concat';
 import filter from 'lodash/fp/filter';
 import find from 'lodash/fp/find';
 import flow from 'lodash/fp/flow';
+import uniqBy from 'lodash/fp/uniqBy';
 
 
 const keepOther = col => item => filter(c => c.id !== item.id, col);
@@ -15,6 +16,17 @@ export const doCreate = (state, { payload }, manipulate) => ({
     concat(payload),
     manipulate
   )(payload),
+});
+
+
+export const doCreateMultiple = (state, { payload }, manipulate) => ({
+  ...state,
+
+  collection: flow(
+    concat(payload),
+    uniqBy('id'),
+    manipulate
+  )(state.collection),
 });
 
 

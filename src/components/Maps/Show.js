@@ -5,6 +5,7 @@ import fget from 'lodash/fp/get';
 
 import styles from './Show.pcss';
 
+import ImportIcon from 'react-icons/lib/go/clippy';
 import SettingsIcon from 'react-icons/lib/go/settings';
 import PlusIcon from 'react-icons/lib/go/plus';
 import TrashCanIcon from 'react-icons/lib/go/trashcan';
@@ -32,6 +33,10 @@ const actions = (slug, instMap, removeMap) => [
   {
     onClick: () => browserHistory.push(`/maps/${slug}/new`),
     label: (<span><PlusIcon /> Add item</span>),
+  },
+  {
+    onClick: () => browserHistory.push(`/maps/${slug}/import`),
+    label: (<span><ImportIcon /> Import data</span>),
   },
   {
     onClick: () => browserHistory.push(`/maps/${slug}/settings`),
