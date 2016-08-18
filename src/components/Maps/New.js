@@ -43,6 +43,7 @@ function slugifyName(t) {
  */
 const New = ({
   dispatch,
+  returnTo,
   submitNewMapForm,
 
   fields: { attributes, name },
@@ -110,7 +111,7 @@ const New = ({
     <section style={{ textAlign: 'right' }}>
       <ButtonGroup>
         <Button
-          onClick={() => browserHistory.push('/')}
+          onClick={() => browserHistory.push(returnTo)}
           classNames={['is-destructive']}
         >Cancel</Button>
         <Button component="button" type="submit">Create map</Button>

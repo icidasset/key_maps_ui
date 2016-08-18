@@ -28,3 +28,60 @@ h2 {
   font-weight: 300;
   opacity: .75;
 }
+
+
+/**
+ * Notifications
+ */
+:global(.redux-toastr) {
+  pointer-events: none;
+  /* ^ temporary -> https://github.com/diegoddox/react-redux-toastr/issues/44 */
+
+  position: fixed;
+  right: grid(2);
+  top: grid(2);
+  width: rem(350px);
+  z-index: 99999;
+
+  & :global(.confirm-holder) {
+    display: none;
+  }
+
+  & :global(.toastr) {
+    background-color: black;
+    border-radius: $border-radius;
+    color: #999;
+    margin-bottom: grid(1);
+    opacity: 0;
+    padding: grid(1.5) grid(2);
+    position: relative;
+    transition: opacity 500ms;
+
+    & :global(.message-holder) {
+      font-weight: 600;
+      line-height: 1.45;
+    }
+
+    &:global(.success),
+    &:global(.warning),
+    &:global(.error) {
+      color: rgba(0, 0, 0, 0.575);
+    }
+
+    &:global(.info) {}
+    &:global(.success) { background-color: $green; }
+    &:global(.warning) { background-color: $yellow; }
+    &:global(.error) { background-color: $red; }
+
+    &:global(.bounceIn),
+    &:global(.fadeIn) {
+      opacity: 1;
+    }
+
+    &:global(.bounceOut),
+    &:global(.fadeOut) {
+      opacity: 0;
+    }
+  }
+
+}
