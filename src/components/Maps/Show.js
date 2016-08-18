@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 import { browserHistory } from 'react-router';
 import { compose, lifecycle, withState } from 'recompose';
+import fget from 'lodash/fp/get';
 
 import styles from './Show.pcss';
 
@@ -80,6 +81,7 @@ const Show = ({
           <ListMapItems
             items={instMapItems}
             removeMapItem={removeMapItem}
+            sortedBy={fget('settings.uiSortBy', instMap)}
           />
 
           :

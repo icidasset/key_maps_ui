@@ -16,7 +16,7 @@ const remove = (mapItemID, removeMapItem) => () => {
 };
 
 
-const List = ({ items, removeMapItem }) => (
+const List = ({ items, removeMapItem, sortedBy }) => (
   <div className={styles.List}>
 
     <Table>
@@ -35,7 +35,7 @@ const List = ({ items, removeMapItem }) => (
                 x => (
                   <div className={styles.dataRow} key={x[0]}>
                     <span>{x[0]}</span>
-                    <div>{x[1]}</div>
+                    <div>{x[0] === sortedBy ? <strong>{x[1]}</strong> : x[1]}</div>
                   </div>
                 ),
                 toPairs(i.attributes)
