@@ -22,6 +22,11 @@ body {
 a {
   color: inherit;
   cursor: pointer;
+
+  &[href]:focus {
+    color: $focus-color !important;
+    outline: none;
+  }
 }
 
 h2 {
@@ -90,9 +95,10 @@ h2 {
 /**
  * Loader
  */
-:global(#loader) {
+:global(.loader-overlay) {
   background-color: $light;
   bottom: 0;
+  color: $base02;
   display: none;
   left: 0;
   opacity: 0;
@@ -106,26 +112,40 @@ h2 {
   & :global(.loader) {
     left: 50%;
     position: absolute;
-    top: 48%;
-
-    &:after {
-      content: "loading ...";
-      font-size: .825em;
-      left: 50%;
-      letter-spacing: .05em;
-      position: absolute;
-      text-transform: uppercase;
-      top: 47px;
-      transform: translateX(-50%);
-      white-space: nowrap;
-    }
-  }
-
-  & :global(.loader-inner > div) {
-    border-color: $dark;
+    top: 50%;
+    transform: translateY(-50%);
   }
 }
 
 
-:global(body.show-loader #loader) { display: block; }
-:global(body.fadein-loader #loader) { opacity: 1; }
+:global(body.loader-overlay--show .loader-overlay) { display: block; }
+:global(body.loader-overlay--fadein .loader-overlay) { opacity: 1; }
+
+
+:global(.loader) {
+  display: inline-block;
+  height: calc(54px + grid(2) + .75rem);
+  position: relative;
+
+  &:after {
+    bottom: 0;
+    content: "loading ...";
+    font-size: .75rem;
+    font-weight: 600;
+    left: 50%;
+    letter-spacing: .05em;
+    line-height: 1;
+    position: absolute;
+    text-transform: uppercase;
+    transform: translateX(-50%);
+    white-space: nowrap;
+  }
+
+  & :global(.loader-inner) {
+    transform: translateY(2px);
+  }
+
+  & :global(.loader-inner > div) {
+    border-color: currentColor;
+  }
+}

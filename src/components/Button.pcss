@@ -3,7 +3,7 @@
 
 .Button {
   background: transparent;
-  border: 2px solid $dark;
+  border: 2px solid currentColor;
   border-radius: 4px;
   color: $dark;
   cursor: pointer;
@@ -13,14 +13,12 @@
   padding: grid(.75) grid(1);
 
   &:focus {
-    border-color: $accent;
     color: $accent;
     outline: none;
   }
 
   &:global(.is-error),
   &:global(.is-destructive) {
-    border-color: $red;
     color: $red;
   }
 

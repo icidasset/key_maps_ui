@@ -8,8 +8,15 @@ import keys from 'lodash/fp/keys';
 import map from 'lodash/fp/map';
 import reduce from 'lodash/fp/reduce';
 
-import { CREATE_MAP_ITEM, CREATE_MAP_ITEMS, FETCH_MAP_ITEMS, REMOVE_MAP_ITEM } from '../lib/types';
 import * as api from '../lib/api';
+
+import {
+  CREATE_MAP_ITEM,
+  CREATE_MAP_ITEMS,
+  FETCH_MAP_ITEMS,
+  FETCHING_MAP_ITEMS,
+  REMOVE_MAP_ITEM
+} from '../lib/types';
 
 
 // CREATE - SINGLE
@@ -66,30 +73,36 @@ export const createMapItems = (instMap, items) => api.gql.mutate({
 
 
 // FETCH
-export const fetchMapItems = (mapName) => api.gql.query({
-  query: gql`
-    query _ ($map: String) {
-      mapItems(map: $map) {
-        id,
-        map_id,
-        attributes
+export const fetchMapItems = (mapName) => (dispatch) => {
+  dispatch({ type: FETCHING_MAP_ITEMS });
+
+  const promise = api.gql.query({
+    query: gql`
+      query _ ($map: String) {
+        mapItems(map: $map) {
+          id,
+          map_id,
+          attributes
+        }
       }
-    }
-  `,
-  variables: {
-    map: mapName,
-  },
-  forceFetch: true,
-}).then(
-  payload => ({ type: FETCH_MAP_ITEMS, payload }),
-);
+    `,
+    variables: {
+      map: mapName,
+    },
+    forceFetch: true,
+  }).then(
+    payload => ({ type: FETCH_MAP_ITEMS, payload }),
+  );
+
+  return dispatch(promise);
+};
 
 
 // REMOVE
 export const removeMapItem = (id) => (dispatch) => {
   dispatch({ type: REMOVE_MAP_ITEM, payload: { id }});
 
-  return api.gql.mutate({
+  api.gql.mutate({
     mutation: gql`
       mutation _ ($id: ID) {
         removeMapItem (id: $id) { id }

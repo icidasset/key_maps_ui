@@ -5,6 +5,7 @@ import {
   CREATE_MAP_ITEM,
   CREATE_MAP_ITEMS,
   FETCH_MAP_ITEMS,
+  FETCHING_MAP_ITEMS,
   REMOVE_MAP_ITEM,
   RESET,
 } from '../lib/types';
@@ -12,6 +13,7 @@ import {
 
 const initialState = {
   collection: [],
+  isFetching: false,
 };
 
 
@@ -21,7 +23,8 @@ export default function(state = initialState, action) {
   case RESET: return { ...initialState };
   case CREATE_MAP_ITEM: return doCreate(state, action, sort);
   case CREATE_MAP_ITEMS: return doCreateMultiple(state, action, sort);
-  case FETCH_MAP_ITEMS: return doFetch(state, action, sort);
+  case FETCH_MAP_ITEMS: return { ...doFetch(state, action, sort), isFetching: false };
+  case FETCHING_MAP_ITEMS: return { ...state, isFetching: true };
   case REMOVE_MAP_ITEM: return doDelete(state, action, sort);
 
   default:

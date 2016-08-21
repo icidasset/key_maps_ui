@@ -50,8 +50,10 @@ const actions = (slug, instMap, removeMap) => [
 
 
 const Show = ({
+  didFetchItems,
   instMap,
   instMapItems,
+  isFetching,
   removeMap,
   removeMapItem,
   slug,
@@ -79,21 +81,41 @@ const Show = ({
     <Container>
       <section>
         {
-          instMapItems.length
+          isFetching || !didFetchItems
 
           ?
 
-          <ListMapItems
-            items={instMapItems}
-            removeMapItem={removeMapItem}
-            sortedBy={fget('settings.uiSortBy', instMap)}
-          />
+          <EmptyState>
+            <div className="loader">
+              <div className="loader-inner ball-scale-ripple-multiple">
+                <div />
+                <div />
+                <div />
+              </div>
+            </div>
+          </EmptyState>
 
           :
 
-          <EmptyState>
-            No items found
-          </EmptyState>
+          (
+
+            instMapItems.length
+
+            ?
+
+            <ListMapItems
+              items={instMapItems}
+              removeMapItem={removeMapItem}
+              sortedBy={fget('settings.uiSortBy', instMap)}
+            />
+
+            :
+
+            <EmptyState>
+              No items found
+            </EmptyState>
+
+          )
         }
       </section>
     </Container>
@@ -104,8 +126,13 @@ const Show = ({
 
 function fetchMapItems() {
   if (this.props.instMap && !this.props.didFetchItems) {
-    this.props.fetchMapItems(this.props.instMap.name);
+    if (this.props.instMapItems.length === 0) {
+      this.props.fetchMapItems(this.props.instMap.name);
+    }
+
     this.props.setDidFetchItems(true);
+
+    // TODO: Could be improved by managing this state globally through redux
   }
 }
 

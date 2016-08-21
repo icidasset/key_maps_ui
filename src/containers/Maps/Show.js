@@ -36,11 +36,13 @@ const mapStateToProps = (state, ownProps) => {
   // url
   const id = state.auth.user.id;
   const url = instMap && `${endpoint}/public/${id}/${slug}`;
+  const isFetching = state.mapItems.isFetching;
 
   // ->
   return {
     instMap,
     instMapItems,
+    isFetching,
     url,
     slug,
   };
