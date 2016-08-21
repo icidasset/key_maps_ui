@@ -1,5 +1,6 @@
 import { metadata }  from 'static-base-preset';
 
+import copy from './copy';
 import pages from './pages';
 import webpack from './webpack';
 
@@ -13,4 +14,5 @@ const comboSequence = (initial) => {
 
 export default [
   comboSequence,
+  copy('build/favicons', 'src/favicons/**/*'),
 ];
