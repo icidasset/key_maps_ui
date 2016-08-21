@@ -15,7 +15,8 @@ import {
   CREATE_MAP_ITEMS,
   FETCH_MAP_ITEMS,
   FETCHING_MAP_ITEMS,
-  REMOVE_MAP_ITEM
+  REMOVE_MAP_ITEM,
+  UPDATE_MAP_ITEM,
 } from '../lib/types';
 
 
@@ -74,7 +75,7 @@ export const createMapItems = (instMap, items) => api.gql.mutate({
 
 // FETCH
 export const fetchMapItems = (mapName) => (dispatch) => {
-  dispatch({ type: FETCHING_MAP_ITEMS });
+  dispatch({ type: FETCHING_MAP_ITEMS, mapName });
 
   const promise = api.gql.query({
     query: gql`
@@ -115,6 +116,39 @@ export const removeMapItem = (id) => (dispatch) => {
 };
 
 
+// UPDATE
+export const updateMapItem = (instMap, mapItemID, attributes) => {
+  let types;
+  let varsMap;
+
+  types = keys(instMap.types);
+  types = map(k => `$${k}: ${capitalize(instMap.types[k])}`, types)
+  types = [...types, '$id: ID'].join(', ');
+
+  varsMap = keys(instMap.types);
+  varsMap = map(k => `${k}: $${k}`, varsMap);
+  varsMap = [...varsMap, 'id: $id'].join(', ');
+
+  return api.gql.mutate({
+    mutation: gql`
+      mutation _ (${types}) {
+        updateMapItem (${varsMap}) {
+          id,
+          map_id,
+          attributes
+        }
+      }
+    `,
+    variables: {
+      ...attributes,
+      id: mapItemID,
+    },
+  }).then(
+    payload => ({ type: UPDATE_MAP_ITEM, payload }),
+  );
+};
+
+
 /**
  * Form handlers
  */
@@ -124,6 +158,15 @@ export const submitNewMapItemForm = () => (dispatch, getState) => {
   const instMap = find(m => m.id === params.map_id, getState().maps.collection);
 
   return dispatch(createMapItem(instMap, attributes));
+};
+
+
+export const submitEditMapItemForm = () => (dispatch, getState) => {
+  const params = getValues(getState().form['map_items/edit']);
+  const attributes = reduce((obj, a) => ({ ...obj, [a.key]: a.value }), {})(params.attributes);
+  const instMap = find(m => m.id === params.map_id, getState().maps.collection);
+
+  return dispatch(updateMapItem(instMap, params.id, attributes));
 };
 
 

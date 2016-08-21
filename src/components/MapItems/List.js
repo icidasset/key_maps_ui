@@ -1,8 +1,10 @@
 import { createElement } from 'react';
+import { browserHistory } from 'react-router';
 import map from 'lodash/fp/map';
 import toPairs from 'lodash/fp/toPairs';
 
 import Infinite from 'react-list';
+import EditIcon from 'react-icons/lib/go/pencil';
 import TrashCanIcon from 'react-icons/lib/go/trashcan';
 
 import styles from './List.pcss';
@@ -18,7 +20,7 @@ const remove = (mapItemID, removeMapItem) => () => {
 };
 
 
-const renderItem = ({ items, removeMapItem, sortedBy }) => (idx, key) => {
+const renderItem = ({ items, mapSlug, removeMapItem, sortedBy }) => (idx, key) => {
   const i = items[idx];
 
   return (
@@ -37,6 +39,9 @@ const renderItem = ({ items, removeMapItem, sortedBy }) => (idx, key) => {
       }
       </td>
       <td data-action>
+        <a onClick={() => browserHistory.push(`/maps/${mapSlug}/${i.id}`)}>
+          <EditIcon />
+        </a>
         <a onClick={remove(i.id, removeMapItem)}>
           <TrashCanIcon />
         </a>
@@ -52,7 +57,7 @@ const List = (props) => (
       <thead>
         <tr>
           <th>Data</th>
-          <th data-action>&nbsp;</th>
+          <th data-action="2">&nbsp;</th>
         </tr>
       </thead>
       <Infinite

@@ -14,9 +14,10 @@ export const authenticate = (attr) => (dispatch) => {
   localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(attr.user));
 
   dispatch({ type: AUTHENTICATE, ...attr });
-  dispatch(fetchMaps());
 
-  return null;
+  return Promise.all([
+    dispatch(fetchMaps()),
+  ]);
 };
 
 
@@ -55,8 +56,7 @@ export const exchangeAuth0Token = (auth0_id_token) => (dispatch) => {
   return api.http('POST', '/auth/exchange', { auth0_id_token }).then(
     ({ token }) => {
       const { user } = decodeJWT(token);
-      dispatch(authenticate({ token, user }));
-      return null;
+      return dispatch(authenticate({ token, user }));
     }
   );
 };

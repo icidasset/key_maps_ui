@@ -7,6 +7,7 @@ import Button from '../Button';
 import EmptyState from '../EmptyState';
 import Form from '../Form';
 import Label from '../Label';
+import Loader from '../Loader';
 
 
 const updateSetting = (instMap, updateMap, key) => (event) => {
@@ -49,5 +50,5 @@ const Settings = ({
 export default (props) => (
   props.instMap ?
     (Settings(props)) :
-    (<EmptyState>Loading ...</EmptyState>)
+    (<EmptyState><Loader /></EmptyState>)
 );

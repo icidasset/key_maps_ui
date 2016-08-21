@@ -16,6 +16,7 @@ import Container from '../Container';
 import EmptyState from '../EmptyState';
 import Label from '../Label';
 import LabelBlock from '../LabelBlock';
+import Loader from '../Loader';
 
 import ListMapItems from '../MapItems/List';
 import NewMapItem from '../MapItems/New';
@@ -50,7 +51,6 @@ const actions = (slug, instMap, removeMap) => [
 
 
 const Show = ({
-  didFetchItems,
   instMap,
   instMapItems,
   isFetching,
@@ -81,18 +81,12 @@ const Show = ({
     <Container>
       <section>
         {
-          isFetching || !didFetchItems
+          isFetching
 
           ?
 
           <EmptyState>
-            <div className="loader">
-              <div className="loader-inner ball-scale-ripple-multiple">
-                <div />
-                <div />
-                <div />
-              </div>
-            </div>
+            <Loader />
           </EmptyState>
 
           :
@@ -107,6 +101,7 @@ const Show = ({
               items={instMapItems}
               removeMapItem={removeMapItem}
               sortedBy={fget('settings.uiSortBy', instMap)}
+              mapSlug={slug}
             />
 
             :
@@ -124,29 +119,7 @@ const Show = ({
 );
 
 
-function fetchMapItems() {
-  if (this.props.instMap && !this.props.didFetchItems) {
-    if (this.props.instMapItems.length === 0) {
-      this.props.fetchMapItems(this.props.instMap.name);
-    }
-
-    this.props.setDidFetchItems(true);
-
-    // TODO: Could be improved by managing this state globally through redux
-  }
-}
-
-
-export default compose(
-  withState('didFetchItems', 'setDidFetchItems', false),
-  lifecycle({
-
-    componentWillMount() { fetchMapItems.call(this); },
-    componentWillReceiveProps() { fetchMapItems.call(this); },
-
-  })
-)(props => {
+export default props => {
   if (props.instMap) return Show(props);
-  return (<Container><section><EmptyState>Loading ...</EmptyState></section></Container>);
-
-});
+  return null;
+};

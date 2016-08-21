@@ -8,6 +8,7 @@ import EmptyState from '../EmptyState';
 import Form from '../Form';
 import Input from '../Input';
 import Label from '../Label';
+import Loader from '../Loader';
 
 import {
   handleFormSubmit
@@ -72,5 +73,5 @@ const ImportForm = reduxForm({
 export default (props) => (
   props.instMap ?
     (<ImportForm {...props} />) :
-    (<EmptyState>Loading ...</EmptyState>)
+    (<EmptyState><Loader /></EmptyState>)
 );

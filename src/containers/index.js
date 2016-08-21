@@ -10,3 +10,4 @@ export { default as State__Message } from "./State/Message";
 
 export { default as withActions } from "./HoC/withActions";
 export { default as withMap } from "./HoC/withMap";
+export { default as withMapItem } from "./HoC/withMapItem";

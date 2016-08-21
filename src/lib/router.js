@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import qs from 'query-string';
 import pick from 'lodash/fp/pick';
 
+import { retrieveMap } from './utils/maps';
 import * as containers from '../containers';
 import * as errorUtils from './utils/errors';
 import actions from '../actions';
@@ -13,6 +14,7 @@ import actions from '../actions';
 import maps_New from '../components/Maps/New';
 import maps_Settings from '../components/Maps/Settings';
 
+import mapItems_Edit from '../components/MapItems/Edit';
 import mapItems_Import from '../components/MapItems/Import';
 import mapItems_New from '../components/MapItems/New';
 
@@ -25,6 +27,7 @@ export default function router(store) {
 
   const wa = c.withActions;
   const wm = c.withMap;
+  const wi = c.withMapItem;
 
   return (
     <Router history={h}>
@@ -35,14 +38,20 @@ export default function router(store) {
 
           { /* Modals */ }
           <Route onEnter={t.isModal}>
-            { r("maps/new",             wa(maps_New,            ['submitNewMapForm']))      }
-            { r("maps/:slug/new",       wa(wm(mapItems_New),    ['submitNewMapItemForm']))  }
-            { r("maps/:slug/settings",  wa(wm(maps_Settings),   ['updateMap']))             }
-            { r("maps/:slug/import",    wa(wm(mapItems_Import), ['submitImportForm']))      }
+            { r("maps/new", wa(maps_New, ['submitNewMapForm'])) }
+
+            <Route onEnter={t.fetchMapItems}>
+              { r("maps/:slug/new",       wa(wm(mapItems_New),      ['submitNewMapItemForm']))  }
+              { r("maps/:slug/settings",  wa(wm(maps_Settings),     ['updateMap']))             }
+              { r("maps/:slug/import",    wa(wm(mapItems_Import),   ['submitImportForm']))      }
+              { r("maps/:slug/:id",       wa(wm(wi(mapItems_Edit)), ['submitEditMapItemForm'])) }
+            </Route>
           </Route>
 
           { /* Other */ }
-          <Route path="maps/:slug" component={c.Maps__Show} />
+          <Route onEnter={t.fetchMapItems}>
+            <Route path="maps/:slug" component={c.Maps__Show} />
+          </Route>
 
         </Route>
 
@@ -59,6 +68,7 @@ export default function router(store) {
 
 
 const buildTransitions = (store) => ({
+  fetchMapItems: fetchMapItems(store),
   isModal: isModal(),
   requireAuth: requireAuth(store),
   preflight: preflight(store),
@@ -68,6 +78,26 @@ const buildTransitions = (store) => ({
 /**
  * Transitions
  */
+function fetchMapItems(store) {
+  const a = bindActionCreators(
+    pick(['fetchMapItems'], actions),
+    store.dispatch
+  );
+
+  return (nextState, replace) => {
+    if (!nextState.params.slug) return;
+
+    const state = store.getState();
+    const [ instMap, _ ] = retrieveMap(nextState.params.slug, state.maps.collection);
+
+    if (instMap) {
+      const fetchedFor = state.mapItems.fetchedFor;
+      if (fetchedFor.includes(instMap.name) === false) a.fetchMapItems(instMap.name);
+    }
+  };
+}
+
+
 function isModal() {
   return (nextState, replace) => {
     const loc = nextState.location;

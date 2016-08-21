@@ -47,4 +47,14 @@ export const doFetch = (state, { payload }, manipulate) => ({
 });
 
 
+export const doFetchWithoutReset = (state, { payload }, manipulate) => ({
+  ...state,
+
+  collection: manipulate(uniqBy(
+    'id',
+    [...state.collection, ...payload]
+  )),
+});
+
+
 export const doUpdate = doCreate;
