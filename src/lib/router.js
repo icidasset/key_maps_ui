@@ -110,7 +110,7 @@ function isModal() {
 
 function preflight(store) {
   const a = bindActionCreators(
-    pick(['authenticateFromStorage', 'exchangeAuth0Token'], actions),
+    pick(['authenticateFromStorage', 'exchangeAuth0Token', 'hideLoader'], actions),
     store.dispatch
   );
 
@@ -118,9 +118,7 @@ function preflight(store) {
     const parsedHash = qs.parse(window.location.hash.substr(1));
     const idToken = parsedHash.id_token;
     const callback = () => {
-      ldr('remove', 'fadein');
-      setTimeout(() => ldr('remove', 'show'), 550);
-
+      a.hideLoader();
       return _callback();
     };
 
@@ -159,11 +157,3 @@ function requireAuth(store) {
     }
   };
 }
-
-
-/**
- * Loader
- */
- function ldr(method, klass) {
-   document.body.classList[method](`loader-overlay--${klass}`);
- }

@@ -1,3 +1,4 @@
 build
+deploy.sh
 node_modules
 npm-debug.log
