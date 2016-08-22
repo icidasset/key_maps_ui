@@ -65,7 +65,11 @@ export default ({
           onClick={() => browserHistory.push(`/maps/${slug}`)}
           classNames={['is-destructive']}
         >Close</Button>
-        <Button component="button" type="submit">{buttonLabel}</Button>
+        <Button
+          component="button"
+          type="submit"
+          classNames={['is-assisting']}
+        >{buttonLabel}</Button>
       </ButtonGroup>
     </section>
 

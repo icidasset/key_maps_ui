@@ -114,7 +114,11 @@ const New = ({
           onClick={() => browserHistory.push(returnTo)}
           classNames={['is-destructive']}
         >Cancel</Button>
-        <Button component="button" type="submit">Create map</Button>
+        <Button
+          component="button"
+          type="submit"
+          classNames={['is-assisting']}
+        >Create map</Button>
       </ButtonGroup>
     </section>
 

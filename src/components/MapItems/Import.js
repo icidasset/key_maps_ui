@@ -48,7 +48,11 @@ const Import = ({
           onClick={() => browserHistory.push(`/maps/${slug}`)}
           classNames={['is-destructive']}
         >Close</Button>
-        <Button component="button" type="submit">Import</Button>
+        <Button
+          component="button"
+          type="submit"
+          classNames={['is-assisting']}
+        >Import</Button>
       </ButtonGroup>
     </section>
 

@@ -8,9 +8,10 @@
   color: $dark;
   cursor: pointer;
   display: inline-block;
-  font-size: .9em;
+  font-size: .725em;
   font-weight: 600;
   padding: grid(.75) grid(1);
+  text-transform: uppercase;
 
   &:focus {
     color: $accent;
@@ -20,6 +21,11 @@
   &:global(.is-error),
   &:global(.is-destructive) {
     color: $red;
+  }
+
+  &:global(.is-success),
+  &:global(.is-assisting) {
+    color: $green;
   }
 
   & svg {
