@@ -1,4 +1,6 @@
 import { createElement } from 'react';
+import { Link } from 'react-router';
+import PlusIcon from 'react-icons/lib/go/plus';
 
 import MapsList from './Maps/List';
 
@@ -22,9 +24,13 @@ const Dashboard = ({ dispatch, maps, submitNewMapForm }) => (
 
         :
 
-        <EmptyState>
-          No maps found
-        </EmptyState>
+        <Link to="/maps/new">
+          <EmptyState>
+            <PlusIcon />
+            Nothing here yet<br />
+            Click to create a map
+          </EmptyState>
+        </Link>
 
       }
 

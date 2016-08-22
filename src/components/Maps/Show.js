@@ -1,5 +1,5 @@
 import { createElement } from 'react';
-import { browserHistory } from 'react-router';
+import { browserHistory, Link } from 'react-router';
 import { compose, lifecycle, withState } from 'recompose';
 import fget from 'lodash/fp/get';
 
@@ -106,9 +106,13 @@ const Show = ({
 
             :
 
-            <EmptyState>
-              No items found
-            </EmptyState>
+            <Link to={`/maps/${slug}/new`}>
+              <EmptyState>
+                <PlusIcon />
+                Nothing here yet<br />
+                Click to add something
+              </EmptyState>
+            </Link>
 
           )
         }

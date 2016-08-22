@@ -32,7 +32,7 @@ const SAMPLE_ATTRIBUTE = { name: 'example', type: ATTRIBUTE_TYPES[0] };
  */
 function slugifyName(t) {
   return slug(
-    t.trim().replace(/&nbsp;/g, ''),
+    t.trim().replace(/(&nbsp;|<div>|<br>|<\/div>|\s)+/g, ''),
     { lower: true, replacement: '_', remove: /[-]/g }
   );
 }

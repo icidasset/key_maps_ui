@@ -5,11 +5,20 @@
   background: $base06;
   border-radius: $border-radius;
   color: $base03;
-  font-size: .85rem;
+  font-size: .8rem;
   font-weight: 600;
   letter-spacing: .025em;
+  line-height: 1.35;
   padding: grid(5) grid(1);
   position: relative;
   text-align: center;
   text-transform: uppercase;
+
+  & svg {
+    color: $base04;
+    display: block;
+    height: grid(6.5);
+    margin: 0 auto grid(1.5);
+    width: @height;
+  }
 }
