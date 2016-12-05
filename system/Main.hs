@@ -53,6 +53,7 @@ flow deps ("pages", dict) =
     |> renameExt ".hs" ".html"
     |> rename "Proxy.html" "200.html"
     |> lowerCaseBasename
+    |> pathToRootForProxy
     |> copyPropsToMetadata
     |> insertMetadata deps
     |> insertMetadata (HashMap.singleton "category" "Storage")

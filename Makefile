@@ -49,7 +49,7 @@ elm:
 
 server:
 	@echo "> Booting up web server"
-	@stack build && stack exec server -- -p 8080 --no-access-log --no-error-log
+	@stack build && stack exec server
 
 
 system:
