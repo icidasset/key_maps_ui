@@ -1,9 +1,15 @@
 module Model.Types exposing (..)
 
+import Http
+
 
 type alias Model =
-    { authenticatedWith : Maybe Token
+    { apiHost : String
+    , authenticatedWith : Maybe Token
+    , authEmail : Maybe String
     , currentPage : Page
+    , errorState : String {- Error state (generic) -}
+    , isLoading : Bool
     }
 
 
@@ -18,7 +24,12 @@ type alias Token =
 type Msg
     = Authenticate Token
     | Deauthenticate
+    | HandleStartAuth (Result Http.Error ())
+    | HandleExchangeAuth (Result Http.Error String)
+    | HandleValidateAuth (Result Http.Error ())
+    | SetAuthEmail String
     | SetPage Page
+    | StartAuth
 
 
 
@@ -26,5 +37,9 @@ type Msg
 
 
 type Page
-    = Index
+    = AuthExchangeFailure
+    | AuthStartFailure
+    | AuthStartSuccess
+    | Index
+    | LoadingScreen
     | SignIn
