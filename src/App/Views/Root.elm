@@ -4,6 +4,7 @@ import Html exposing (..)
 import Model.Types exposing (Model, Msg(..), Page(..))
 import Views.Auth
 import Views.AuthScreen
+import Views.Index
 import Views.LoadingScreen
 
 
@@ -44,5 +45,8 @@ requireAuthentication model =
         Views.AuthScreen.view SetAuthEmail StartAuth
     else
         case model.currentPage of
+            Index ->
+                Views.Index.view model
+
             _ ->
-                div [] [ text "Hello world!" ]
+                text "Page not found."

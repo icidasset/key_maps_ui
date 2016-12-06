@@ -21,6 +21,7 @@ withProgramFlags flags location =
             , currentPage = Routing.locationToPage location
             , errorState = ""
             , isLoading = False
+            , keymaps = []
             }
     in
         case Auth.hasExchangeError location of

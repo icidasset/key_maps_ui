@@ -20,7 +20,7 @@ locationToPage : Navigation.Location -> Page
 locationToPage location =
     location
         |> UrlParser.parsePath route
-        |> Maybe.withDefault Index
+        |> Maybe.withDefault NotFound
 
 
 
