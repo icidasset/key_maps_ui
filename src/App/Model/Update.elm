@@ -1,6 +1,9 @@
 module Model.Update exposing (withMessage)
 
 import Auth.Start
+import Debug
+import Form exposing (Form)
+import GraphQL.Mutations
 import GraphQL.Queries
 import Http exposing (Error(..))
 import Json.Decode
@@ -93,7 +96,31 @@ withMessage msg model =
             { model | isLoading = False, errorState = genericError }
                 ! [ newUrl "/auth/validation/error" ]
 
-        -- Maps
+        -- Forms
+        HandleCreateForm msg ->
+            let
+                updatedForm =
+                    Form.update msg model.forms.create
+
+                currentForms =
+                    model.forms
+
+                newModel =
+                    { model | forms = { currentForms | create = updatedForm } }
+
+                cmd =
+                    if isFormReady updatedForm then
+                        [ GraphQL.Mutations.create newModel ]
+                    else
+                        []
+            in
+                newModel ! cmd
+
+        -- GraphQL
+        CreateMap _ ->
+            -- TODO
+            model ! []
+
         LoadMaps (Ok value) ->
             let
                 maps =
@@ -109,3 +136,13 @@ withMessage msg model =
         LoadMaps (Err _) ->
             -- TODO
             { model | isLoading = False } ! []
+
+
+
+-- Helpers
+
+
+isFormReady : Form e o -> Bool
+isFormReady form =
+    List.isEmpty (Form.getErrors form)
+        && Form.isSubmitted form

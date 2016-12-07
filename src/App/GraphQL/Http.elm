@@ -22,7 +22,7 @@ query msg model queryName query =
                 , headers = [ header "Authorization" authToken ]
                 , url = url
                 , body = Http.emptyBody
-                , expect = Http.expectJson (jsonDecoder queryName)
+                , expect = Http.expectJson (jsonDecoder queryName) {- TODO: write custom -}
                 , timeout = Nothing
                 , withCredentials = False
                 }

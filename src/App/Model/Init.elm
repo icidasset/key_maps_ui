@@ -2,6 +2,8 @@ module Model.Init exposing (..)
 
 import Auth.Exchange as Auth
 import Auth.Validate as Auth
+import Form
+import Forms.Validation
 import Model.Types exposing (Model, Msg, Page(..))
 import Navigation
 import Routing
@@ -20,6 +22,9 @@ withProgramFlags flags location =
             , authEmail = Nothing
             , currentPage = Routing.locationToPage location
             , errorState = ""
+            , forms =
+                { create = Form.initial [] Forms.Validation.createForm
+                }
             , isLoading = False
             , keymaps = []
             }
@@ -37,6 +42,10 @@ withProgramFlags flags location =
                         model ! []
 
 
+
+-- Authentication
+
+
 goToExchangeErrorPage : List (Cmd Msg)
 goToExchangeErrorPage =
     [ Navigation.newUrl "/auth/exchange/error" ]
@@ -50,6 +59,10 @@ exchangeValidateOrPass model location =
         |> List.filter isJust
         |> List.head
         |> Maybe.withDefault Nothing
+
+
+
+-- Helpers
 
 
 isJust : Maybe a -> Bool

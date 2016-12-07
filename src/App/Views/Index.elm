@@ -1,11 +1,14 @@
 module Views.Index exposing (view)
 
+import Form
+import Form.Input as Input
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onWithOptions)
+import Html.Events exposing (onSubmit, onWithOptions)
 import Json.Decode as Json
-import Model.Types exposing (KeyMap, Model, Msg(GoToMap))
+import Model.Types exposing (KeyMap, Model, Msg(..))
 import Regex
+import Views.Utils
 
 
 view : Model -> Html Msg
@@ -19,7 +22,7 @@ view model =
                 (list model)
             , div
                 [ class "block" ]
-                (sidebar model)
+                (List.map (Html.map HandleCreateForm) (sidebar model))
             ]
         ]
 
@@ -67,37 +70,34 @@ mapItem item =
 -- Sidebar
 
 
-sidebar : Model -> List (Html Msg)
+sidebar : Model -> List (Html Form.Msg)
 sidebar model =
     [ h2
         [ class "is-more-subtle block__title" ]
         [ text "Add" ]
     , Html.form
-        []
+        [ onSubmit Form.Submit ]
         [ p
             []
             [ label
                 [ for "name" ]
                 [ text "Name" ]
-            , input
-                [ name "name"
-                , placeholder "Quotes"
-                , type_ "text"
-                ]
-                []
+            , Input.textInput
+                (Form.getFieldAsString "name" model.forms.create)
+                [ placeholder "Quotes" ]
             ]
         , p
             []
             [ label
-                [ for "config" ]
+                [ for "attributes" ]
                 [ text "Attributes" ]
-            , textarea
-                [ name "config"
-                , class "with-monospace-font"
-                , placeholder configPlaceholder
+            , Input.textArea
+                (Form.getFieldAsString "attributes" model.forms.create)
+                [ class "with-monospace-font"
+                , placeholder typesPlaceholder
                 ]
-                []
             ]
+        , Views.Utils.formErrors model.forms.create
         , p
             []
             [ button
@@ -108,8 +108,8 @@ sidebar model =
     ]
 
 
-configPlaceholder : String
-configPlaceholder =
+typesPlaceholder : String
+typesPlaceholder =
     """
     {
       "key": "type"

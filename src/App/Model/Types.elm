@@ -1,6 +1,8 @@
 module Model.Types exposing (..)
 
 import Dict exposing (Dict)
+import Form exposing (Form)
+import Forms.Types exposing (Forms)
 import Json.Decode as Json
 import Http
 
@@ -11,6 +13,7 @@ type alias Model =
     , authEmail : Maybe String
     , currentPage : Page
     , errorState : String {- Error state (generic) -}
+    , forms : Forms
     , isLoading : Bool
     , keymaps : List KeyMap
     }
@@ -53,16 +56,21 @@ type alias KeyItem =
 
 
 type Msg
-    = Authenticate Token
+    = GoToMap String
+    | SetPage Page
+      -- Authentication
+    | Authenticate Token
     | Deauthenticate
-    | GoToMap String
     | HandleStartAuth (Result Http.Error ())
     | HandleExchangeAuth (Result Http.Error String)
     | HandleValidateAuth (Result Http.Error ())
-    | LoadMaps (Result Http.Error Json.Value)
     | SetAuthEmail String
-    | SetPage Page
     | StartAuth
+      -- Forms
+    | HandleCreateForm Form.Msg
+      -- GraphQL
+    | CreateMap (Result Http.Error Json.Value)
+    | LoadMaps (Result Http.Error Json.Value)
 
 
 
@@ -70,10 +78,11 @@ type Msg
 
 
 type Page
-    = AuthExchangeFailure
-    | AuthStartFailure
-    | AuthStartSuccess
-    | Index
+    = Index
     | LoadingScreen
     | NotFound
+      -- Authentication
+    | AuthExchangeFailure
+    | AuthStartFailure
+    | AuthStartSuccess
     | SignIn
