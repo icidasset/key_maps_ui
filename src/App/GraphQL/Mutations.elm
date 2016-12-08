@@ -31,12 +31,9 @@ create model =
             """
 
         form =
-            case Form.getOutput model.createForm of
-                Just o ->
-                    o
-
-                Nothing ->
-                    emptyCreateForm
+            model.createForm
+                |> Form.getOutput
+                |> Maybe.withDefault emptyCreateForm
 
         formTypes =
             Dict.toList form.attributes

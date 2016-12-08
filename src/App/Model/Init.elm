@@ -34,15 +34,15 @@ withProgramFlags flags location =
             , createServerError = Nothing
             }
     in
-        flow model location
+        authFlow model location
 
 
 
 -- Authentication
 
 
-flow : Model -> Navigation.Location -> ( Model, Cmd Msg )
-flow model location =
+authFlow : Model -> Navigation.Location -> ( Model, Cmd Msg )
+authFlow model location =
     case Auth.hasExchangeError location of
         Just err ->
             { model | errorState = err } ! goToExchangeErrorPage
