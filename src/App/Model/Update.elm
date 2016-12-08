@@ -108,10 +108,7 @@ withMessage msg model =
                 newModel =
                     { model | createForm = Form.update formMsg model.createForm }
             in
-                if
-                    (formMsg == Form.Submit)
-                        && (formIsValid newModel.createForm)
-                then
+                if canSubmitForm formMsg newModel.createForm then
                     (!)
                         { newModel | isLoading = True }
                         [ GraphQL.Mutations.create newModel ]
