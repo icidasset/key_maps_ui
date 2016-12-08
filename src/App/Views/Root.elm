@@ -2,8 +2,10 @@ module Views.Root exposing (view)
 
 import Html exposing (..)
 import Model.Types exposing (Model, Msg(..), Page(..))
+import Model.Utils
 import Views.Auth
 import Views.AuthScreen
+import Views.Detail
 import Views.Index
 import Views.LoadingScreen
 
@@ -47,6 +49,11 @@ requireAuthentication model =
         case model.currentPage of
             Index ->
                 Views.Index.view model
+
+            Detail encodedMapName ->
+                encodedMapName
+                    |> Model.Utils.decodeMapName
+                    |> Views.Detail.view model
 
             _ ->
                 text "Page not found."

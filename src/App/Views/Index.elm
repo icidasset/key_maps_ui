@@ -7,6 +7,7 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (onSubmit, onWithOptions)
 import Json.Decode as Json
 import Model.Types exposing (KeyMap, Model, Msg(..))
+import Model.Utils
 import Regex
 import Views.Utils
 
@@ -40,7 +41,7 @@ list model =
         [ class "block__list block__list--bold" ]
         [ ul
             []
-            (maps model.keymaps)
+            (maps model.collection)
         ]
     ]
 
@@ -55,7 +56,7 @@ mapItem item =
     li
         []
         [ a
-            [ href ("maps/" ++ item.name)
+            [ href ("maps/" ++ Model.Utils.encodeMapName item.name)
             , onWithOptions "click"
                 { stopPropagation = False
                 , preventDefault = True

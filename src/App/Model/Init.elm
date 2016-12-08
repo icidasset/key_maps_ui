@@ -18,10 +18,10 @@ withProgramFlags flags location =
     let
         model =
             { apiHost = "https://keymaps.herokuapp.com"
+            , collection = []
             , currentPage = Routing.locationToPage location
             , errorState = ""
             , isLoading = False
-            , keymaps = []
             , ---------------------------------------
               -- Authentication
               ---------------------------------------

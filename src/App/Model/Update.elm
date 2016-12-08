@@ -10,6 +10,7 @@ import GraphQL.Queries
 import Http exposing (Error(..))
 import Json.Decode as Json
 import Model.Types exposing (..)
+import Model.Utils
 import Navigation exposing (modifyUrl, newUrl)
 import Signals.Ports exposing (storeAuthToken)
 import Utils
@@ -28,10 +29,20 @@ withMessage : Msg -> Model -> ( Model, Cmd Msg )
 withMessage msg model =
     case msg of
         GoToMap mapName ->
-            (!) model [ newUrl ("/maps/" ++ mapName) ]
+            (!) model [ newUrl ("/maps/" ++ Model.Utils.encodeMapName mapName) ]
 
         SetPage page ->
-            (!) { model | currentPage = page } []
+            (!)
+                { model | currentPage = page }
+                [ case page of
+                    Detail encodedMapName ->
+                        encodedMapName
+                            |> Model.Utils.decodeMapName
+                            |> GraphQL.Queries.mapItems model
+
+                    _ ->
+                        Cmd.none
+                ]
 
         -- Auth
         Authenticate token ->
@@ -121,19 +132,19 @@ withMessage msg model =
         CreateMap (Ok value) ->
             let
                 collection =
-                    case decodeGraphQL value keyMapDecoder of
+                    case decodeGraphQL value Model.Utils.keyMapDecoder of
                         Just m ->
-                            model.keymaps ++ [ m ]
+                            model.collection ++ [ m ]
 
                         Nothing ->
-                            model.keymaps
+                            model.collection
             in
                 (!)
                     { model
                         | isLoading = False
+                        , collection = collection
                         , createForm = resetForm model.createForm
                         , createServerError = Nothing
-                        , keymaps = collection
                     }
                     []
 
@@ -147,14 +158,40 @@ withMessage msg model =
         LoadMaps (Ok value) ->
             let
                 maps =
-                    Json.list keyMapDecoder
+                    Json.list Model.Utils.keyMapDecoder
                         |> decodeGraphQL value
                         |> Maybe.withDefault []
             in
-                (!) { model | isLoading = False, keymaps = maps } []
+                (!) { model | isLoading = False, collection = maps } []
 
         LoadMaps (Err _) ->
+            -------
             -- TODO
+            -------
+            (!) { model | isLoading = False } []
+
+        -- GraphQL :: Load map items
+        LoadMapItems (Ok value) ->
+            let
+                items =
+                    Json.list Model.Utils.keyItemDecoder
+                        |> decodeGraphQL value
+                        |> Maybe.withDefault []
+
+                maybeMapId =
+                    Maybe.map .map_id (List.head items)
+
+                collection =
+                    case maybeMapId of
+                        Just mapId ->
+                            List.map (storeItems mapId items) model.collection
+
+                        Nothing ->
+                            model.collection
+            in
+                (!) { model | isLoading = False, collection = collection } []
+
+        LoadMapItems (Err _) ->
             (!) { model | isLoading = False } []
 
 
@@ -172,3 +209,11 @@ decodeGraphQL value decoder =
             value
                 |> Debug.log ("Could not parse json from GraphQL response (`" ++ err ++ "`)")
                 |> \_ -> Nothing
+
+
+storeItems : String -> List KeyItem -> KeyMap -> KeyMap
+storeItems mapId items keyMap =
+    if keyMap.id == mapId then
+        { keyMap | items = Just items }
+    else
+        keyMap

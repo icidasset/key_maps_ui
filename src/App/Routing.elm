@@ -30,10 +30,12 @@ locationToPage location =
 route : Parser (Page -> a) a
 route =
     oneOf
-        [ map AuthExchangeFailure (s "auth" </> s "exchange" </> s "error")
+        [ -- Authentication
+          map AuthExchangeFailure (s "auth" </> s "exchange" </> s "error")
         , map AuthStartFailure (s "auth" </> s "start" </> s "error")
         , map AuthStartSuccess (s "auth" </> s "start" </> s "success")
         , map SignIn (s "sign-in")
           --
+        , map Detail (s "maps" </> string)
         , map Index top
         ]

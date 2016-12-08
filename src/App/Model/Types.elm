@@ -3,16 +3,16 @@ module Model.Types exposing (..)
 import Dict exposing (Dict)
 import Form exposing (Form)
 import Forms.Types exposing (..)
-import Json.Decode as Json
 import Http
+import Json.Decode as Json
 
 
 type alias Model =
     { apiHost : String
+    , collection : List KeyMap
     , currentPage : Page
     , errorState : String {- Error state (generic) -}
     , isLoading : Bool
-    , keymaps : List KeyMap
     , ---------------------------------------
       -- Authentication
       ---------------------------------------
@@ -39,16 +39,9 @@ type alias KeyMap =
     , name : String
     , attributes : List String
     , types : Dict String String
+    , -- Local
+      items : Maybe (List KeyItem)
     }
-
-
-keyMapDecoder : Json.Decoder KeyMap
-keyMapDecoder =
-    Json.map4 KeyMap
-        (Json.field "id" <| Json.string)
-        (Json.field "name" <| Json.string)
-        (Json.field "attributes" <| Json.list Json.string)
-        (Json.field "types" <| Json.dict Json.string)
 
 
 type alias KeyItem =
@@ -76,8 +69,13 @@ type Msg
       -- Forms
     | HandleCreateForm Form.Msg
       -- GraphQL
-    | CreateMap (Result Http.Error Json.Value)
-    | LoadMaps (Result Http.Error Json.Value)
+    | CreateMap GraphQLResult
+    | LoadMaps GraphQLResult
+    | LoadMapItems GraphQLResult
+
+
+type alias GraphQLResult =
+    Result Http.Error Json.Value
 
 
 
@@ -86,6 +84,7 @@ type Msg
 
 type Page
     = Index
+    | Detail String
     | LoadingScreen
     | NotFound
       -- Authentication
