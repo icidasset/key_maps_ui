@@ -31,7 +31,7 @@ create model =
             """
 
         form =
-            case Form.getOutput model.forms.create of
+            case Form.getOutput model.createForm of
                 Just o ->
                     o
 
@@ -65,7 +65,7 @@ create model =
                 |> replace "{{attributes}}" attributes
                 |> replace "{{types}}" types
     in
-        query CreateMap model "createMap" (Debug.log "mut" mutationWithVariables)
+        query CreateMap model "createMap" mutationWithVariables
 
 
 

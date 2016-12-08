@@ -18,32 +18,42 @@ withProgramFlags flags location =
     let
         model =
             { apiHost = "https://keymaps.herokuapp.com"
-            , authenticatedWith = flags.authToken
-            , authEmail = Nothing
             , currentPage = Routing.locationToPage location
             , errorState = ""
-            , forms =
-                { create = Form.initial [] Forms.Validation.createForm
-                }
             , isLoading = False
             , keymaps = []
+            , ---------------------------------------
+              -- Authentication
+              ---------------------------------------
+              authenticatedWith = flags.authToken
+            , authEmail = Nothing
+            , ---------------------------------------
+              -- Forms
+              ---------------------------------------
+              createForm = Form.initial [] Forms.Validation.createForm
+            , createServerError = Nothing
             }
     in
-        case Auth.hasExchangeError location of
-            Just err ->
-                { model | errorState = err } ! goToExchangeErrorPage
-
-            Nothing ->
-                case exchangeValidateOrPass model location of
-                    Just cmd ->
-                        { model | isLoading = True } ! [ cmd ]
-
-                    Nothing ->
-                        model ! []
+        flow model location
 
 
 
 -- Authentication
+
+
+flow : Model -> Navigation.Location -> ( Model, Cmd Msg )
+flow model location =
+    case Auth.hasExchangeError location of
+        Just err ->
+            { model | errorState = err } ! goToExchangeErrorPage
+
+        Nothing ->
+            case exchangeValidateOrPass model location of
+                Just cmd ->
+                    { model | isLoading = True } ! [ cmd ]
+
+                Nothing ->
+                    model ! []
 
 
 goToExchangeErrorPage : List (Cmd Msg)

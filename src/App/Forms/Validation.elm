@@ -1,4 +1,4 @@
-module Forms.Validation exposing (..)
+module Forms.Validation exposing (createForm)
 
 import Dict exposing (Dict)
 import Form.Error exposing (Error)
@@ -7,7 +7,7 @@ import Forms.Types exposing (..)
 import Json.Decode as Json
 
 
--- Create form
+-- {form} Create
 
 
 createForm : Validation String CreateForm

@@ -15,16 +15,7 @@ allowedAttributeTypes =
 
 
 
--- Group
-
-
-type alias Forms =
-    { create : Form String CreateForm
-    }
-
-
-
--- Children
+-- Forms
 
 
 type alias CreateForm =

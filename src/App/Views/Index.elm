@@ -83,7 +83,7 @@ sidebar model =
                 [ for "name" ]
                 [ text "Name" ]
             , Input.textInput
-                (Form.getFieldAsString "name" model.forms.create)
+                (Form.getFieldAsString "name" model.createForm)
                 [ placeholder "Quotes" ]
             ]
         , p
@@ -92,12 +92,12 @@ sidebar model =
                 [ for "attributes" ]
                 [ text "Attributes" ]
             , Input.textArea
-                (Form.getFieldAsString "attributes" model.forms.create)
+                (Form.getFieldAsString "attributes" model.createForm)
                 [ class "with-monospace-font"
                 , placeholder typesPlaceholder
                 ]
             ]
-        , Views.Utils.formErrors model.forms.create
+        , Views.Utils.formErrors model.createForm model.createServerError
         , p
             []
             [ button

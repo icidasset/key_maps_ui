@@ -7,8 +7,8 @@ import Html.Attributes exposing (class)
 import String.Extra exposing (humanize)
 
 
-formErrors : Form String o -> Html Form.Msg
-formErrors form =
+formErrors : Form String o -> Maybe String -> Html Form.Msg
+formErrors form maybeServerError =
     if Form.isSubmitted form then
         p
             [ class "form__error" ]
@@ -18,6 +18,9 @@ formErrors form =
                         CustomError e ->
                             text (e ++ ".")
 
+                        Empty ->
+                            text (humanize label ++ " cannot be empty.")
+
                         InvalidString ->
                             text (humanize label ++ " cannot be empty.")
 
@@ -25,7 +28,12 @@ formErrors form =
                             text ("The field `" ++ humanize label ++ "` is invalid.")
 
                 _ ->
-                    text ""
+                    case maybeServerError of
+                        Just err ->
+                            text (err ++ ".")
+
+                        Nothing ->
+                            text ""
             ]
     else
         text ""

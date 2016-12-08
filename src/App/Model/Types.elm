@@ -2,20 +2,27 @@ module Model.Types exposing (..)
 
 import Dict exposing (Dict)
 import Form exposing (Form)
-import Forms.Types exposing (Forms)
+import Forms.Types exposing (..)
 import Json.Decode as Json
 import Http
 
 
 type alias Model =
     { apiHost : String
-    , authenticatedWith : Maybe Token
-    , authEmail : Maybe String
     , currentPage : Page
     , errorState : String {- Error state (generic) -}
-    , forms : Forms
     , isLoading : Bool
     , keymaps : List KeyMap
+    , ---------------------------------------
+      -- Authentication
+      ---------------------------------------
+      authenticatedWith : Maybe Token
+    , authEmail : Maybe String
+    , ---------------------------------------
+      -- Forms
+      ---------------------------------------
+      createForm : Form String CreateForm
+    , createServerError : Maybe String
     }
 
 
