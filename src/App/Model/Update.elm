@@ -28,21 +28,34 @@ genericError =
 withMessage : Msg -> Model -> ( Model, Cmd Msg )
 withMessage msg model =
     case msg of
+        GoToIndex ->
+            (!) model [ newUrl ("/") ]
+
         GoToMap mapName ->
             (!) model [ newUrl ("/maps/" ++ Model.Utils.encodeMapName mapName) ]
 
-        SetPage page ->
-            (!)
-                { model | currentPage = page }
-                [ case page of
-                    Detail encodedMapName ->
-                        encodedMapName
-                            |> Model.Utils.decodeMapName
-                            |> GraphQL.Queries.mapItems model
+        -- Navigation :: PRIVATE
+        SetPage (Detail encodedMapName) ->
+            case model.authenticatedWith of
+                Just _ ->
+                    let
+                        isLoading =
+                            encodedMapName
+                                |> Model.Utils.decodeMapName
+                                |> Model.Utils.isEmptyKeyMap model.collection
 
-                    _ ->
-                        Cmd.none
-                ]
+                        page =
+                            Detail encodedMapName
+                    in
+                        (!)
+                            { model | isLoading = isLoading, currentPage = page }
+                            [ mapItemsCommand model encodedMapName ]
+
+                Nothing ->
+                    (!) { model | currentPage = Detail encodedMapName } []
+
+        SetPage page ->
+            (!) { model | currentPage = page } []
 
         -- Auth
         Authenticate token ->
@@ -161,14 +174,32 @@ withMessage msg model =
                     Json.list Model.Utils.keyMapDecoder
                         |> decodeGraphQL value
                         |> Maybe.withDefault []
+
+                newModel =
+                    { model
+                        | isLoading =
+                            case model.currentPage of
+                                Detail _ ->
+                                    True
+
+                                _ ->
+                                    False
+                        , collection = maps
+                    }
             in
-                (!) { model | isLoading = False, collection = maps } []
+                (!)
+                    newModel
+                    [ -- Load map items of a specific map
+                      case model.currentPage of
+                        Detail encodeMapName ->
+                            mapItemsCommand newModel encodeMapName
+
+                        _ ->
+                            Cmd.none
+                    ]
 
         LoadMaps (Err _) ->
-            -------
-            -- TODO
-            -------
-            (!) { model | isLoading = False } []
+            (!) { model | isLoading = False } [ newUrl "/errors/maps" ]
 
         -- GraphQL :: Load map items
         LoadMapItems (Ok value) ->
@@ -192,7 +223,7 @@ withMessage msg model =
                 (!) { model | isLoading = False, collection = collection } []
 
         LoadMapItems (Err _) ->
-            (!) { model | isLoading = False } []
+            (!) { model | isLoading = False } [ modifyUrl "/errors/map" ]
 
 
 
@@ -209,6 +240,13 @@ decodeGraphQL value decoder =
             value
                 |> Debug.log ("Could not parse json from GraphQL response (`" ++ err ++ "`)")
                 |> \_ -> Nothing
+
+
+mapItemsCommand : Model -> String -> Cmd Msg
+mapItemsCommand model encodedMapName =
+    encodedMapName
+        |> Model.Utils.decodeMapName
+        |> GraphQL.Queries.mapItems model
 
 
 storeItems : String -> List KeyItem -> KeyMap -> KeyMap

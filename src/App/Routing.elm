@@ -35,6 +35,9 @@ route =
         , map AuthStartFailure (s "auth" </> s "start" </> s "error")
         , map AuthStartSuccess (s "auth" </> s "start" </> s "success")
         , map SignIn (s "sign-in")
+          -- Errors
+        , map CouldNotLoadMaps (s "errors" </> s "maps")
+        , map CouldNotLoadMap (s "errors" </> s "map")
           --
         , map Detail (s "maps" </> string)
         , map Index top

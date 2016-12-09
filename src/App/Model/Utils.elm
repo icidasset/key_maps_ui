@@ -5,6 +5,38 @@ import Json.Decode as Json
 import Model.Types exposing (..)
 
 
+-- Querying
+
+
+getMap : List KeyMap -> String -> Maybe KeyMap
+getMap collection decodedMapName =
+    collection
+        |> List.filter (mapFilter (String.toLower decodedMapName))
+        |> List.head
+
+
+getMapItems : Maybe KeyMap -> List KeyItem
+getMapItems keyMap =
+    keyMap
+        |> Maybe.map (\m -> m.items)
+        |> Maybe.map (\m -> Maybe.withDefault [] m)
+        |> Maybe.withDefault []
+
+
+isEmptyKeyMap : List KeyMap -> String -> Bool
+isEmptyKeyMap collection decodedMapName =
+    decodedMapName
+        |> getMap collection
+        |> getMapItems
+        |> List.isEmpty
+
+
+mapFilter : String -> KeyMap -> Bool
+mapFilter lowercaseMapName m =
+    (String.toLower m.name) == lowercaseMapName
+
+
+
 -- Json
 
 

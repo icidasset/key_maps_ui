@@ -8,6 +8,7 @@ import Views.AuthScreen
 import Views.Detail
 import Views.Index
 import Views.LoadingScreen
+import Views.MessageScreen
 
 
 view : Model -> Html Msg
@@ -54,6 +55,13 @@ requireAuthentication model =
                 encodedMapName
                     |> Model.Utils.decodeMapName
                     |> Views.Detail.view model
+
+            -- Errors
+            CouldNotLoadMap ->
+                Views.MessageScreen.view "Map not found."
+
+            CouldNotLoadMaps ->
+                Views.MessageScreen.view "Could not load maps."
 
             _ ->
                 text "Page not found."

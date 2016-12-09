@@ -56,7 +56,9 @@ type alias KeyItem =
 
 
 type Msg
-    = GoToMap String
+    = -- Navigation
+      GoToIndex
+    | GoToMap String
     | SetPage Page
       -- Authentication
     | Authenticate Token
@@ -87,6 +89,9 @@ type Page
     | Detail String
     | LoadingScreen
     | NotFound
+      -- Errors
+    | CouldNotLoadMap
+    | CouldNotLoadMaps
       -- Authentication
     | AuthExchangeFailure
     | AuthStartFailure
