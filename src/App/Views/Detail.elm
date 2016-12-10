@@ -1,6 +1,8 @@
 module Views.Detail exposing (view)
 
 import Dict exposing (Dict)
+import Form
+import Form.Input as Input
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onWithOptions)
@@ -8,6 +10,7 @@ import Json.Decode as Json
 import Model.Types exposing (..)
 import Model.Utils
 import Views.Icon
+import Views.Utils exposing (blockFiller, blockRow)
 
 
 view : Model -> String -> Html Msg
@@ -105,25 +108,69 @@ decodeAttributes attributes =
 configPanel : Model -> KeyMap -> Html Msg
 configPanel model keyMap =
     div
-        [ class "block__list" ]
-        [ ul
-            []
-            [ lia
-                [ href "../../"
-                , onWithOptions "click"
-                    { stopPropagation = False
-                    , preventDefault = True
-                    }
-                    (Json.succeed GoToIndex)
+        [ class "blocks" ]
+        [ blockRow
+            [ div
+                [ class "block__list" ]
+                [ ul
+                    []
+                    [ lia
+                        [ href "../../"
+                        , onWithOptions "click"
+                            { stopPropagation = False
+                            , preventDefault = True
+                            }
+                            (Json.succeed GoToIndex)
+                        ]
+                        [ span [] [ text "☜" ]
+                        , text "Index"
+                        ]
+                    , lia
+                        [ onClick (ConfirmToRemoveMap keyMap.id) ]
+                        [ text "Remove map" ]
+                    ]
                 ]
-                [ span [] [ text "☜" ]
-                , text "Back to index"
-                ]
-            , lia
-                [ onClick (ConfirmToRemoveMap keyMap.id) ]
-                [ text "Remove map" ]
             ]
+        , blockRow
+            [ Html.map HandleAddItemForm (addItemForm model keyMap) ]
         ]
+
+
+addItemForm : Model -> KeyMap -> Html Form.Msg
+addItemForm model keyMap =
+    let
+        form_ =
+            model.addItemForm
+    in
+        Html.form
+            []
+            [ div
+                []
+                (List.map
+                    (\attr ->
+                        let
+                            key =
+                                "attributes." ++ attr
+                        in
+                            p
+                                []
+                                [ label
+                                    [ for attr ]
+                                    [ text attr ]
+                                , Input.textInput
+                                    (Form.getFieldAsString key form_)
+                                    []
+                                ]
+                    )
+                    keyMap.attributes
+                )
+            , p
+                []
+                [ button
+                    [ type_ "submit" ]
+                    [ text "Add new item" ]
+                ]
+            ]
 
 
 lia : List (Html.Attribute Msg) -> List (Html Msg) -> Html Msg

@@ -3,6 +3,8 @@ module Model.Update exposing (withMessage)
 import Auth.Start
 import Debug
 import Form exposing (Form)
+import Form.Field
+import Form.Init
 import Forms.Types
 import Forms.Utils exposing (..)
 import GraphQL.Mutations
@@ -131,6 +133,20 @@ withMessage msg model =
         ---------------------------------------
         -- Forms
         ---------------------------------------
+        HandleAddItemForm formMsg ->
+            let
+                newModel =
+                    { model | addItemForm = Form.update formMsg model.addItemForm }
+            in
+                if canSubmitForm formMsg newModel.addItemForm then
+                    (!)
+                        { newModel | isLoading = True }
+                        [{- TODO -}]
+                else
+                    (!)
+                        { newModel | addItemServerError = Nothing }
+                        []
+
         HandleCreateForm formMsg ->
             let
                 newModel =
@@ -270,7 +286,11 @@ withMessage msg model =
                             Detail encodedMapName
                     in
                         (!)
-                            { model | isLoading = isLoading, currentPage = page }
+                            { model
+                                | isLoading = isLoading
+                                , addItemForm = setAddItemFormFields model encodedMapName
+                                , currentPage = page
+                            }
                             [ mapItemsCommand model encodedMapName ]
 
                 Nothing ->
@@ -301,6 +321,24 @@ mapItemsCommand model encodedMapName =
     encodedMapName
         |> Model.Utils.decodeMapName
         |> GraphQL.Queries.mapItems model
+
+
+setAddItemFormFields : Model -> String -> Form String Forms.Types.AddItemForm
+setAddItemFormFields model encodedMapName =
+    let
+        keyMap =
+            encodedMapName
+                |> Model.Utils.decodeMapName
+                |> Model.Utils.getMap model.collection
+                |> Maybe.withDefault fakeKeyMap
+
+        fields =
+            List.map (\a -> Form.Init.setString a "") keyMap.attributes
+
+        fields_ =
+            [ Form.Init.setGroup "attributes" fields ]
+    in
+        Form.update (Form.Reset fields_) model.addItemForm
 
 
 storeItems : String -> List KeyItem -> KeyMap -> KeyMap

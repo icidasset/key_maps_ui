@@ -37,7 +37,9 @@ withProgramFlags flags location =
             , ---------------------------------------
               -- Forms
               ---------------------------------------
-              createForm = Form.initial [] Forms.Validation.createForm
+              addItemForm = Form.initial [] Forms.Validation.addItemForm
+            , addItemServerError = Nothing
+            , createForm = Form.initial [] Forms.Validation.createForm
             , createServerError = Nothing
             }
     in

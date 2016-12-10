@@ -18,6 +18,15 @@ allowedAttributeTypes =
 -- Forms
 
 
+type alias AddItemForm =
+    { attributes : List String }
+
+
+emptyAddItemForm : AddItemForm
+emptyAddItemForm =
+    { attributes = [] }
+
+
 type alias CreateForm =
     { name : String
     , attributes : Dict String String

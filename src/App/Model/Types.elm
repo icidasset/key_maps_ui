@@ -26,7 +26,9 @@ type alias Model =
     , ---------------------------------------
       -- Forms
       ---------------------------------------
-      createForm : Form String CreateForm
+      addItemForm : Form String AddItemForm
+    , addItemServerError : Maybe String
+    , createForm : Form String CreateForm
     , createServerError : Maybe String
     }
 
@@ -88,6 +90,7 @@ type Msg
     | SetAuthEmail String
     | StartAuth
       -- Forms
+    | HandleAddItemForm Form.Msg
     | HandleCreateForm Form.Msg
       -- GraphQL
     | CreateMap GraphQLResult

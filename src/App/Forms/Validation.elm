@@ -1,10 +1,20 @@
-module Forms.Validation exposing (createForm)
+module Forms.Validation exposing (addItemForm, createForm)
 
 import Dict exposing (Dict)
 import Form.Error exposing (Error)
 import Form.Validate exposing (..)
 import Forms.Types exposing (..)
 import Json.Decode as Json
+
+
+-- {form} Add item
+
+
+addItemForm : Validation String AddItemForm
+addItemForm =
+    map AddItemForm
+        (field "attributes" (list string))
+
 
 
 -- {form} Create
@@ -37,6 +47,7 @@ typesValidator dict =
         values =
             (Dict.values dict)
     in
+        -- TODO: check if the key has no spaces in it
         if List.isEmpty values then
             Err (customError "A map must have at least one attribute")
         else
