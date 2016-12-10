@@ -12,7 +12,8 @@ import Json.Decode as Json
 import Model.Types exposing (..)
 import Model.Utils
 import Navigation exposing (modifyUrl, newUrl)
-import Signals.Ports exposing (storeAuthToken)
+import Signals.Ports as Ports
+import Task
 import Utils
 
 
@@ -28,36 +29,37 @@ genericError =
 withMessage : Msg -> Model -> ( Model, Cmd Msg )
 withMessage msg model =
     case msg of
-        GoToIndex ->
-            (!) model [ newUrl ("/") ]
+        ---------------------------------------
+        -- Dialogs
+        ---------------------------------------
+        Confirm bool ->
+            let
+                confirmMsg =
+                    case bool of
+                        True ->
+                            Maybe.map (\c -> c.ok) model.confirm
 
-        GoToMap mapName ->
-            (!) model [ newUrl ("/maps/" ++ Model.Utils.encodeMapName mapName) ]
+                        False ->
+                            Nothing
+            in
+                (!)
+                    { model | confirm = Nothing }
+                    [ case confirmMsg of
+                        Just theMsg ->
+                            Task.perform identity (Task.succeed theMsg)
 
-        -- Navigation :: PRIVATE
-        SetPage (Detail encodedMapName) ->
-            case model.authenticatedWith of
-                Just _ ->
-                    let
-                        isLoading =
-                            encodedMapName
-                                |> Model.Utils.decodeMapName
-                                |> Model.Utils.isEmptyKeyMap model.collection
+                        Nothing ->
+                            Cmd.none
+                    ]
 
-                        page =
-                            Detail encodedMapName
-                    in
-                        (!)
-                            { model | isLoading = isLoading, currentPage = page }
-                            [ mapItemsCommand model encodedMapName ]
+        ConfirmToRemoveMap id ->
+            (!)
+                { model | confirm = Just { ok = ExecRemoveMap id } }
+                [ Ports.askForConfirmation "Are you sure you want to remove this map?" ]
 
-                Nothing ->
-                    (!) { model | currentPage = Detail encodedMapName } []
-
-        SetPage page ->
-            (!) { model | currentPage = page } []
-
+        ---------------------------------------
         -- Auth
+        ---------------------------------------
         Authenticate token ->
             (!) { model | authenticatedWith = Just token } []
 
@@ -96,7 +98,7 @@ withMessage msg model =
             in
                 newModel
                     ! [ modifyUrl "/"
-                      , storeAuthToken token
+                      , Ports.storeAuthToken token
                       , GraphQL.Queries.maps newModel
                       ]
 
@@ -126,7 +128,9 @@ withMessage msg model =
                 { model | isLoading = False, errorState = genericError }
                 [ newUrl "/auth/validation/error" ]
 
+        ---------------------------------------
         -- Forms
+        ---------------------------------------
         HandleCreateForm formMsg ->
             let
                 newModel =
@@ -141,6 +145,9 @@ withMessage msg model =
                         { newModel | createServerError = Nothing }
                         []
 
+        ---------------------------------------
+        -- GraphQL
+        ---------------------------------------
         -- GraphQL :: Create map
         CreateMap (Ok value) ->
             let
@@ -166,6 +173,30 @@ withMessage msg model =
 
         CreateMap (Err _) ->
             (!) { model | isLoading = False, createServerError = Just genericError } []
+
+        -- GraphQL :: Load map items
+        LoadMapItems (Ok value) ->
+            let
+                items =
+                    Json.list Model.Utils.keyItemDecoder
+                        |> decodeGraphQL value
+                        |> Maybe.withDefault []
+
+                maybeMapId =
+                    Maybe.map .map_id (List.head items)
+
+                collection =
+                    case maybeMapId of
+                        Just mapId ->
+                            List.map (storeItems mapId items) model.collection
+
+                        Nothing ->
+                            model.collection
+            in
+                (!) { model | isLoading = False, collection = collection } []
+
+        LoadMapItems (Err _) ->
+            (!) { model | isLoading = False } [ modifyUrl "/errors/map" ]
 
         -- GraphQL :: Load maps
         LoadMaps (Ok value) ->
@@ -201,29 +232,52 @@ withMessage msg model =
         LoadMaps (Err _) ->
             (!) { model | isLoading = False } [ newUrl "/errors/maps" ]
 
-        -- GraphQL :: Load map items
-        LoadMapItems (Ok value) ->
-            let
-                items =
-                    Json.list Model.Utils.keyItemDecoder
-                        |> decodeGraphQL value
-                        |> Maybe.withDefault []
+        -- GraphQL :: Remove map
+        ExecRemoveMap id ->
+            (!)
+                { model | collection = List.filter (\c -> c.id /= id) model.collection }
+                [ GraphQL.Mutations.remove model id
+                , modifyUrl "/"
+                ]
 
-                maybeMapId =
-                    Maybe.map .map_id (List.head items)
+        RemoveMap (Ok _) ->
+            (!) model []
 
-                collection =
-                    case maybeMapId of
-                        Just mapId ->
-                            List.map (storeItems mapId items) model.collection
+        RemoveMap (Err _) ->
+            -- TODO
+            (!) model []
 
-                        Nothing ->
-                            model.collection
-            in
-                (!) { model | isLoading = False, collection = collection } []
+        ---------------------------------------
+        -- Navigation
+        ---------------------------------------
+        GoToIndex ->
+            (!) model [ newUrl ("/") ]
 
-        LoadMapItems (Err _) ->
-            (!) { model | isLoading = False } [ modifyUrl "/errors/map" ]
+        GoToMap mapName ->
+            (!) model [ newUrl ("/maps/" ++ Model.Utils.encodeMapName mapName) ]
+
+        -- Navigation :: PRIVATE
+        SetPage (Detail encodedMapName) ->
+            case model.authenticatedWith of
+                Just _ ->
+                    let
+                        isLoading =
+                            encodedMapName
+                                |> Model.Utils.decodeMapName
+                                |> Model.Utils.isEmptyKeyMap model.collection
+
+                        page =
+                            Detail encodedMapName
+                    in
+                        (!)
+                            { model | isLoading = isLoading, currentPage = page }
+                            [ mapItemsCommand model encodedMapName ]
+
+                Nothing ->
+                    (!) { model | currentPage = Detail encodedMapName } []
+
+        SetPage page ->
+            (!) { model | currentPage = page } []
 
 
 

@@ -13,11 +13,16 @@ type alias Model =
     , currentPage : Page
     , errorState : String {- Error state (generic) -}
     , isLoading : Bool
+    , pathToRoot : String
     , ---------------------------------------
       -- Authentication
       ---------------------------------------
       authenticatedWith : Maybe Token
     , authEmail : Maybe String
+    , ---------------------------------------
+      -- Dialogs
+      ---------------------------------------
+      confirm : Maybe Confirmation
     , ---------------------------------------
       -- Forms
       ---------------------------------------
@@ -28,6 +33,11 @@ type alias Model =
 
 type alias Token =
     String
+
+
+type alias Confirmation =
+    { ok : Msg
+    }
 
 
 
@@ -44,6 +54,16 @@ type alias KeyMap =
     }
 
 
+fakeKeyMap : KeyMap
+fakeKeyMap =
+    { id = "0"
+    , name = "FAKE"
+    , attributes = []
+    , types = Dict.empty
+    , items = Nothing
+    }
+
+
 type alias KeyItem =
     { id : String
     , map_id : String
@@ -56,10 +76,9 @@ type alias KeyItem =
 
 
 type Msg
-    = -- Navigation
-      GoToIndex
-    | GoToMap String
-    | SetPage Page
+    = -- Dialogs
+      Confirm Bool
+    | ConfirmToRemoveMap String
       -- Authentication
     | Authenticate Token
     | Deauthenticate
@@ -74,6 +93,13 @@ type Msg
     | CreateMap GraphQLResult
     | LoadMaps GraphQLResult
     | LoadMapItems GraphQLResult
+    | RemoveMap GraphQLResult
+      -- GraphQL :: Execution
+    | ExecRemoveMap String
+      -- Navigation
+    | GoToIndex
+    | GoToMap String
+    | SetPage Page
 
 
 type alias GraphQLResult =

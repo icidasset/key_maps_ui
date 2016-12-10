@@ -48,7 +48,9 @@ list model =
 
 maps : List KeyMap -> List (Html Msg)
 maps collection =
-    List.map mapItem collection
+    collection
+        |> List.sortBy .name
+        |> List.map mapItem
 
 
 mapItem : KeyMap -> Html Msg
@@ -113,7 +115,7 @@ typesPlaceholder : String
 typesPlaceholder =
     """
     {
-      "key": "type"
+      "key": "String | Number"
     }
     """
         |> Regex.replace (Regex.AtMost 1) (Regex.regex "\\n\\s*") (\_ -> "")

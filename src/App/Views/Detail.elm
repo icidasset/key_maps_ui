@@ -3,48 +3,52 @@ module Views.Detail exposing (view)
 import Dict exposing (Dict)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onWithOptions)
+import Html.Events exposing (onClick, onWithOptions)
 import Json.Decode as Json
 import Model.Types exposing (..)
 import Model.Utils
+import Views.Icon
 
 
 view : Model -> String -> Html Msg
 view model mapName =
-    div
-        [ class "blocks" ]
-        [ div
-            [ class "blocks__row" ]
+    let
+        keyMap =
+            mapName
+                |> Model.Utils.getMap model.collection
+                |> Maybe.withDefault fakeKeyMap
+    in
+        div
+            [ class "blocks" ]
             [ div
-                [ class "block" ]
-                [ h2
-                    [ class "is-more-subtle block__title" ]
-                    [ text "Control panel" ]
-                , configPanel model mapName
-                ]
-            , div
-                [ class "block" ]
-                [ h2
-                    [ class "is-more-subtle block__title" ]
-                    [ text "Data" ]
-                , data model mapName
+                [ class "blocks__row" ]
+                [ div
+                    [ class "block" ]
+                    [ h2
+                        [ class "is-more-subtle block__title" ]
+                        [ text "Control panel" ]
+                    , configPanel model keyMap
+                    ]
+                , div
+                    [ class "block" ]
+                    [ h2
+                        [ class "is-more-subtle block__title" ]
+                        [ text "Data" ]
+                    , data model keyMap
+                    ]
                 ]
             ]
-        ]
 
 
 
 -- Data
 
 
-data : Model -> String -> Html Msg
-data model mapName =
+data : Model -> KeyMap -> Html Msg
+data model keyMap =
     let
-        keyMap =
-            Model.Utils.getMap model.collection mapName
-
         items =
-            Model.Utils.getMapItems keyMap
+            Model.Utils.getMapItems (Just keyMap)
     in
         if List.isEmpty items then
             div
@@ -98,8 +102,8 @@ decodeAttributes attributes =
 -- Config panel
 
 
-configPanel : Model -> String -> Html Msg
-configPanel model mapName =
+configPanel : Model -> KeyMap -> Html Msg
+configPanel model keyMap =
     div
         [ class "block__list" ]
         [ ul
@@ -115,7 +119,9 @@ configPanel model mapName =
                 [ span [] [ text "☜" ]
                 , text "Back to index"
                 ]
-            , lia [] [ text "Remove map" ]
+            , lia
+                [ onClick (ConfirmToRemoveMap keyMap.id) ]
+                [ text "Remove map" ]
             ]
         ]
 

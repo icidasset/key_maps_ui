@@ -10,7 +10,7 @@ BUILD_DIR=./build
 all: build
 
 
-build: clean system elm css
+build: clean system elm css images
 
 
 build-production: build
@@ -45,6 +45,12 @@ elm:
 	else \
 		elm-make $(ELM_MAKE_ARGS); \
 	fi
+
+
+images:
+	@echo "> Copying images"
+	@mkdir -p $(BUILD_DIR)/images
+	@cp icidasset-template/images/icons.svg $(BUILD_DIR)/images/icons.svg
 
 
 server:

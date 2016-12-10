@@ -10,7 +10,9 @@ import Routing
 
 
 type alias ProgramFlags =
-    { authToken : Maybe String }
+    { authToken : Maybe String
+    , pathToRoot : String
+    }
 
 
 withProgramFlags : ProgramFlags -> Navigation.Location -> ( Model, Cmd Msg )
@@ -22,11 +24,16 @@ withProgramFlags flags location =
             , currentPage = Routing.locationToPage location
             , errorState = ""
             , isLoading = False
+            , pathToRoot = flags.pathToRoot
             , ---------------------------------------
               -- Authentication
               ---------------------------------------
               authenticatedWith = flags.authToken
             , authEmail = Nothing
+            , ---------------------------------------
+              -- Dialogs
+              ---------------------------------------
+              confirm = Nothing
             , ---------------------------------------
               -- Forms
               ---------------------------------------

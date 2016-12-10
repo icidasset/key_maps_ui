@@ -65,6 +65,29 @@ create model =
         query CreateMap model "createMap" mutationWithVariables
 
 
+remove : Model -> String -> Cmd Msg
+remove model mapId =
+    let
+        mutation =
+            """
+              mutation M {
+                removeMap(
+                  id: {{id}}
+                ) {
+                  id,
+                  name,
+                  attributes,
+                  types
+                }
+              }
+            """
+
+        mutationWithVariables =
+            replace "{{id}}" mapId mutation
+    in
+        query RemoveMap model "removeMap" mutationWithVariables
+
+
 
 -- Helpers
 
