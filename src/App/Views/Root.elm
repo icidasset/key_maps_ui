@@ -1,13 +1,14 @@
 module Views.Root exposing (view)
 
 import Html exposing (..)
-import Model.Types exposing (Model, Msg(..), Page(..))
+import Model.Types exposing (..)
 import Model.Utils
 import Views.Auth
 import Views.AuthScreen
-import Views.Detail
 import Views.Index
 import Views.LoadingScreen
+import Views.Maps.Detail
+import Views.Maps.Edit
 import Views.MessageScreen
 
 
@@ -48,13 +49,22 @@ requireAuthentication model =
         Views.AuthScreen.view SetAuthEmail StartAuth
     else
         case model.currentPage of
-            Index ->
-                Views.Index.view model
-
-            Detail encodedMapName ->
+            DetailMap encodedMapName ->
                 encodedMapName
                     |> Model.Utils.decodeMapName
-                    |> Views.Detail.view model
+                    |> Model.Utils.getMap model.collection
+                    |> Maybe.withDefault fakeKeyMap
+                    |> Views.Maps.Detail.view model
+
+            EditMap encodedMapName ->
+                encodedMapName
+                    |> Model.Utils.decodeMapName
+                    |> Model.Utils.getMap model.collection
+                    |> Maybe.withDefault fakeKeyMap
+                    |> Views.Maps.Edit.view model
+
+            Index ->
+                Views.Index.view model
 
             -- Errors
             CouldNotLoadMap ->

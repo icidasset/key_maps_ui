@@ -70,3 +70,16 @@ decodeMapName encodedMapName =
 encodeMapName : String -> String
 encodeMapName mapName =
     Http.encodeUri mapName
+
+
+mapUrl : String -> String
+mapUrl mapName =
+    "/maps/" ++ encodeMapName mapName
+
+
+storeItems : String -> List KeyItem -> KeyMap -> KeyMap
+storeItems mapId items keyMap =
+    if keyMap.id == mapId then
+        { keyMap | items = Just items }
+    else
+        keyMap

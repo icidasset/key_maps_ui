@@ -1,12 +1,12 @@
 module Model.Init exposing (..)
 
-import Auth.Exchange as Auth
-import Auth.Validate as Auth
+import Auth.Flow exposing (authFlow)
 import Form
-import Forms.Validation
-import Model.Types exposing (Model, Msg, Page(..))
+import Forms.Validation exposing (emptyDictionaryValidation)
+import Model.Types exposing (Model, Msg)
 import Navigation
 import Routing
+import Set
 
 
 type alias ProgramFlags =
@@ -18,12 +18,16 @@ type alias ProgramFlags =
 withProgramFlags : ProgramFlags -> Navigation.Location -> ( Model, Cmd Msg )
 withProgramFlags flags location =
     let
+        emptyKeyItemForm =
+            Forms.Validation.keyItemForm emptyDictionaryValidation
+
         model =
             { apiHost = "https://keymaps.herokuapp.com"
             , collection = []
             , currentPage = Routing.locationToPage location
             , errorState = ""
             , isLoading = False
+            , loadedItemsFromMaps = Set.empty
             , pathToRoot = flags.pathToRoot
             , ---------------------------------------
               -- Authentication
@@ -37,58 +41,12 @@ withProgramFlags flags location =
             , ---------------------------------------
               -- Forms
               ---------------------------------------
-              addItemForm = Form.initial [] Forms.Validation.addItemForm
-            , addItemServerError = Nothing
-            , createForm = Form.initial [] Forms.Validation.createForm
-            , createServerError = Nothing
+              createItemForm = Form.initial [] emptyKeyItemForm
+            , createItemServerError = Nothing
+            , createMapForm = Form.initial [] Forms.Validation.keyMapForm
+            , createMapServerError = Nothing
+            , editMapForm = Form.initial [] Forms.Validation.keyMapWithIdForm
+            , editMapServerError = Nothing
             }
     in
         authFlow model location
-
-
-
--- Authentication
-
-
-authFlow : Model -> Navigation.Location -> ( Model, Cmd Msg )
-authFlow model location =
-    case Auth.hasExchangeError location of
-        Just err ->
-            { model | errorState = err } ! goToExchangeErrorPage
-
-        Nothing ->
-            case exchangeValidateOrPass model location of
-                Just cmd ->
-                    { model | isLoading = True } ! [ cmd ]
-
-                Nothing ->
-                    model ! []
-
-
-goToExchangeErrorPage : List (Cmd Msg)
-goToExchangeErrorPage =
-    [ Navigation.newUrl "/auth/exchange/error" ]
-
-
-exchangeValidateOrPass : Model -> Navigation.Location -> Maybe (Cmd Msg)
-exchangeValidateOrPass model location =
-    [ Maybe.map (Auth.doExchange model) (Auth.needsExchange location)
-    , Maybe.map (Auth.doValidate model) (model.authenticatedWith)
-    ]
-        |> List.filter isJust
-        |> List.head
-        |> Maybe.withDefault Nothing
-
-
-
--- Helpers
-
-
-isJust : Maybe a -> Bool
-isJust m =
-    case m of
-        Just _ ->
-            True
-
-        Nothing ->
-            False

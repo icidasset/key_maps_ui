@@ -39,6 +39,7 @@ route =
         , map CouldNotLoadMaps (s "errors" </> s "maps")
         , map CouldNotLoadMap (s "errors" </> s "map")
           --
-        , map Detail (s "maps" </> string)
+        , map DetailMap (s "maps" </> string)
+        , map EditMap (s "maps" </> string </> s "edit")
         , map Index top
         ]

@@ -1,5 +1,6 @@
 module GraphQL.Http exposing (query)
 
+import GraphQL.Utils exposing (insertVariables)
 import Http exposing (header)
 import Json.Decode as Json
 import Model.Types exposing (Model, Msg)
@@ -7,11 +8,22 @@ import String.Extra as String
 import Utils
 
 
-query : (Result Http.Error Json.Value -> Msg) -> Model -> String -> String -> Cmd Msg
-query msg model queryName query =
+type alias QueryMsg =
+    Result Http.Error Json.Value -> Msg
+
+
+type alias Variables =
+    List ( String, Json.Value )
+
+
+query : QueryMsg -> Model -> String -> String -> Variables -> Cmd Msg
+query msg model queryName query variables =
     let
+        queryWithVariables =
+            insertVariables query queryName variables
+
         url =
-            model.apiHost ++ "/api?query=" ++ (encodeQuery query)
+            model.apiHost ++ "/api?query=" ++ (encodeQuery queryWithVariables)
 
         authToken =
             Maybe.withDefault "" model.authenticatedWith

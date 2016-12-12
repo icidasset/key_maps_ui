@@ -2,9 +2,10 @@ module Views.Utils exposing (..)
 
 import Form exposing (Form)
 import Form.Error exposing (ErrorValue(..))
-import Html exposing (Html, a, div, p, span, text)
+import Html exposing (Html, a, div, li, p, span, text)
 import Html.Attributes exposing (class)
 import Model.Types exposing (Model, Msg)
+import Regex
 import String.Extra exposing (humanize)
 import Views.Icon
 
@@ -61,3 +62,19 @@ formErrors form maybeServerError =
             ]
     else
         text ""
+
+
+li_a : List (Html.Attribute Msg) -> List (Html Msg) -> Html Msg
+li_a attr children =
+    li [] [ a attr children ]
+
+
+typesPlaceholder : String
+typesPlaceholder =
+    """
+    {
+      "key": "String | Text | Number"
+    }
+    """
+        |> Regex.replace (Regex.AtMost 1) (Regex.regex "\\n\\s*") (\_ -> "")
+        |> Regex.replace (Regex.All) (Regex.regex "\\n\\s{4}") (\_ -> "\n")

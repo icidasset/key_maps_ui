@@ -10,6 +10,7 @@ import Form exposing (Form)
 allowedAttributeTypes : List String
 allowedAttributeTypes =
     [ "String"
+    , "Text"
     , "Number"
     ]
 
@@ -18,23 +19,38 @@ allowedAttributeTypes =
 -- Forms
 
 
-type alias AddItemForm =
-    { attributes : List String }
+type alias KeyItemForm =
+    { attributes : Dict String String }
 
 
-emptyAddItemForm : AddItemForm
-emptyAddItemForm =
-    { attributes = [] }
+emptyKeyItemForm : KeyItemForm
+emptyKeyItemForm =
+    { attributes = Dict.empty }
 
 
-type alias CreateForm =
+type alias KeyMapForm =
     { name : String
     , attributes : Dict String String
     }
 
 
-emptyCreateForm : CreateForm
-emptyCreateForm =
+type alias KeyMapWithIdForm =
+    { id : String
+    , name : String
+    , attributes : Dict String String
+    }
+
+
+emptyKeyMapForm : KeyMapForm
+emptyKeyMapForm =
     { name = ""
+    , attributes = Dict.empty
+    }
+
+
+emptyKeyMapWithIdForm : KeyMapWithIdForm
+emptyKeyMapWithIdForm =
+    { id = ""
+    , name = ""
     , attributes = Dict.empty
     }

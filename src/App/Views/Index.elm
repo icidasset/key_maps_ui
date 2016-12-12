@@ -4,11 +4,11 @@ import Form
 import Form.Input as Input
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onSubmit, onWithOptions)
+import Html.Events exposing (onSubmit)
+import Html.Events.Extra exposing (onClickPreventDefault)
 import Json.Decode as Json
 import Model.Types exposing (KeyMap, Model, Msg(..))
 import Model.Utils
-import Regex
 import Views.Utils
 
 
@@ -23,7 +23,7 @@ view model =
                 (list model)
             , div
                 [ class "block" ]
-                (List.map (Html.map HandleCreateForm) (sidebar model))
+                (List.map (Html.map HandleCreateMapForm) (sidebar model))
             ]
         ]
 
@@ -59,11 +59,7 @@ mapItem item =
         []
         [ a
             [ href ("maps/" ++ Model.Utils.encodeMapName item.name)
-            , onWithOptions "click"
-                { stopPropagation = False
-                , preventDefault = True
-                }
-                (Json.succeed (GoToMap item.name))
+            , onClickPreventDefault (GoToMap item.name)
             ]
             [ text item.name ]
         ]
@@ -86,7 +82,7 @@ sidebar model =
                 [ for "name" ]
                 [ text "Name" ]
             , Input.textInput
-                (Form.getFieldAsString "name" model.createForm)
+                (Form.getFieldAsString "name" model.createMapForm)
                 [ placeholder "Quotes" ]
             ]
         , p
@@ -95,12 +91,12 @@ sidebar model =
                 [ for "attributes" ]
                 [ text "Attributes" ]
             , Input.textArea
-                (Form.getFieldAsString "attributes" model.createForm)
+                (Form.getFieldAsString "attributes" model.createMapForm)
                 [ class "with-monospace-font"
-                , placeholder typesPlaceholder
+                , placeholder Views.Utils.typesPlaceholder
                 ]
             ]
-        , Views.Utils.formErrors model.createForm model.createServerError
+        , Views.Utils.formErrors model.createMapForm model.createMapServerError
         , p
             []
             [ button
@@ -109,14 +105,3 @@ sidebar model =
             ]
         ]
     ]
-
-
-typesPlaceholder : String
-typesPlaceholder =
-    """
-    {
-      "key": "String | Number"
-    }
-    """
-        |> Regex.replace (Regex.AtMost 1) (Regex.regex "\\n\\s*") (\_ -> "")
-        |> Regex.replace (Regex.All) (Regex.regex "\\n\\s{4}") (\_ -> "\n")

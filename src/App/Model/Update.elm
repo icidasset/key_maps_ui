@@ -2,21 +2,25 @@ module Model.Update exposing (withMessage)
 
 import Auth.Start
 import Debug
+import Dict
 import Form exposing (Form)
 import Form.Field
 import Form.Init
 import Forms.Types
+import Forms.Init exposing (..)
 import Forms.Utils exposing (..)
 import GraphQL.Mutations
 import GraphQL.Queries
+import GraphQL.Utils exposing (decodeGraphQL)
 import Http exposing (Error(..))
 import Json.Decode as Json
+import Json.Encode
 import Model.Types exposing (..)
-import Model.Utils
+import Model.Utils exposing (mapUrl, storeItems)
 import Navigation exposing (modifyUrl, newUrl)
+import Set
 import Signals.Ports as Ports
 import Task
-import Utils
 
 
 genericError : String
@@ -66,6 +70,7 @@ withMessage msg model =
             (!) { model | authenticatedWith = Just token } []
 
         Deauthenticate ->
+            -- TODO
             (!) { model | authenticatedWith = Nothing } []
 
         SetAuthEmail email ->
@@ -133,33 +138,50 @@ withMessage msg model =
         ---------------------------------------
         -- Forms
         ---------------------------------------
-        HandleAddItemForm formMsg ->
-            let
-                newModel =
-                    { model | addItemForm = Form.update formMsg model.addItemForm }
-            in
-                if canSubmitForm formMsg newModel.addItemForm then
-                    (!)
-                        { newModel | isLoading = True }
-                        [{- TODO -}]
-                else
-                    (!)
-                        { newModel | addItemServerError = Nothing }
-                        []
+        HandleCreateItemForm formMsg ->
+            case
+                submitForm
+                    .createItemForm
+                    (\m v -> { m | createItemForm = v })
+                    (\m v -> { m | createItemServerError = v })
+                    model
+                    formMsg
+            of
+                ( m, True ) ->
+                    (!) m [ GraphQL.Mutations.createItem m ]
 
-        HandleCreateForm formMsg ->
-            let
-                newModel =
-                    { model | createForm = Form.update formMsg model.createForm }
-            in
-                if canSubmitForm formMsg newModel.createForm then
-                    (!)
-                        { newModel | isLoading = True }
-                        [ GraphQL.Mutations.create newModel ]
-                else
-                    (!)
-                        { newModel | createServerError = Nothing }
-                        []
+                ( m, False ) ->
+                    (!) m []
+
+        HandleCreateMapForm formMsg ->
+            case
+                submitForm
+                    .createMapForm
+                    (\m v -> { m | createMapForm = v })
+                    (\m v -> { m | createMapServerError = v })
+                    model
+                    formMsg
+            of
+                ( m, True ) ->
+                    (!) m [ GraphQL.Mutations.createMap m ]
+
+                ( m, False ) ->
+                    (!) m []
+
+        HandleEditMapForm formMsg ->
+            case
+                submitForm
+                    .editMapForm
+                    (\m v -> { m | editMapForm = v })
+                    (\m v -> { m | editMapServerError = v })
+                    model
+                    formMsg
+            of
+                ( m, True ) ->
+                    (!) m [ GraphQL.Mutations.updateMap m ]
+
+                ( m, False ) ->
+                    (!) m []
 
         ---------------------------------------
         -- GraphQL
@@ -167,8 +189,11 @@ withMessage msg model =
         -- GraphQL :: Create map
         CreateMap (Ok value) ->
             let
+                keyMap =
+                    decodeGraphQL value Model.Utils.keyMapDecoder
+
                 collection =
-                    case decodeGraphQL value Model.Utils.keyMapDecoder of
+                    case keyMap of
                         Just m ->
                             model.collection ++ [ m ]
 
@@ -179,16 +204,22 @@ withMessage msg model =
                     { model
                         | isLoading = False
                         , collection = collection
-                        , createForm = resetForm model.createForm
-                        , createServerError = Nothing
+                        , createMapForm = resetForm model.createMapForm
+                        , createMapServerError = Nothing
                     }
-                    []
+                    [ case keyMap of
+                        Just km ->
+                            newUrl (mapUrl km.name)
+
+                        Nothing ->
+                            Cmd.none
+                    ]
 
         CreateMap (Err (BadPayload err _)) ->
-            (!) { model | isLoading = False, createServerError = Just err } []
+            (!) { model | isLoading = False, createMapServerError = Just err } []
 
         CreateMap (Err _) ->
-            (!) { model | isLoading = False, createServerError = Just genericError } []
+            (!) { model | isLoading = False, createMapServerError = Just genericError } []
 
         -- GraphQL :: Load map items
         LoadMapItems (Ok value) ->
@@ -208,8 +239,22 @@ withMessage msg model =
 
                         Nothing ->
                             model.collection
+
+                loadedItemsFromMaps =
+                    case maybeMapId of
+                        Just mapId ->
+                            Set.insert mapId model.loadedItemsFromMaps
+
+                        Nothing ->
+                            model.loadedItemsFromMaps
             in
-                (!) { model | isLoading = False, collection = collection } []
+                (!)
+                    { model
+                        | isLoading = False
+                        , collection = collection
+                        , loadedItemsFromMaps = loadedItemsFromMaps
+                    }
+                    []
 
         LoadMapItems (Err _) ->
             (!) { model | isLoading = False } [ modifyUrl "/errors/map" ]
@@ -223,27 +268,9 @@ withMessage msg model =
                         |> Maybe.withDefault []
 
                 newModel =
-                    { model
-                        | isLoading =
-                            case model.currentPage of
-                                Detail _ ->
-                                    True
-
-                                _ ->
-                                    False
-                        , collection = maps
-                    }
+                    { model | collection = maps }
             in
-                (!)
-                    newModel
-                    [ -- Load map items of a specific map
-                      case model.currentPage of
-                        Detail encodeMapName ->
-                            mapItemsCommand newModel encodeMapName
-
-                        _ ->
-                            Cmd.none
-                    ]
+                withMessage (SetPage model.currentPage) newModel
 
         LoadMaps (Err _) ->
             (!) { model | isLoading = False } [ newUrl "/errors/maps" ]
@@ -252,98 +279,153 @@ withMessage msg model =
         ExecRemoveMap id ->
             (!)
                 { model | collection = List.filter (\c -> c.id /= id) model.collection }
-                [ GraphQL.Mutations.remove model id
+                [ GraphQL.Mutations.removeMap model id
                 , modifyUrl "/"
                 ]
 
         RemoveMap (Ok _) ->
+            {- Nothing needs to happen, silently remove -}
             (!) model []
 
         RemoveMap (Err _) ->
-            -- TODO
+            {- TODO -}
             (!) model []
+
+        -- GraphQL :: Update map
+        UpdateMap (Ok value) ->
+            let
+                keyMap =
+                    decodeGraphQL value Model.Utils.keyMapDecoder
+
+                collection =
+                    case keyMap of
+                        Just m ->
+                            (++)
+                                (List.filter (\c -> c.id /= m.id) model.collection)
+                                [ m ]
+
+                        Nothing ->
+                            model.collection
+            in
+                (!)
+                    { model
+                        | isLoading = False
+                        , collection = collection
+                        , editMapServerError = Nothing
+                    }
+                    [ case keyMap of
+                        Just km ->
+                            newUrl (mapUrl km.name)
+
+                        Nothing ->
+                            Cmd.none
+                    ]
+
+        UpdateMap (Err (BadPayload err _)) ->
+            (!) { model | isLoading = False, editMapServerError = Just err } []
+
+        UpdateMap (Err _) ->
+            (!) { model | isLoading = False, editMapServerError = Just genericError } []
 
         ---------------------------------------
         -- Navigation
         ---------------------------------------
+        GoToEditMap mapName ->
+            (!) model [ newUrl (mapUrl mapName ++ "/edit") ]
+
         GoToIndex ->
             (!) model [ newUrl ("/") ]
 
         GoToMap mapName ->
-            (!) model [ newUrl ("/maps/" ++ Model.Utils.encodeMapName mapName) ]
+            (!) model [ newUrl (mapUrl mapName) ]
 
         -- Navigation :: PRIVATE
-        SetPage (Detail encodedMapName) ->
+        SetPage (DetailMap encodedMapName) ->
             case model.authenticatedWith of
                 Just _ ->
                     let
                         isLoading =
                             encodedMapName
                                 |> Model.Utils.decodeMapName
-                                |> Model.Utils.isEmptyKeyMap model.collection
-
-                        page =
-                            Detail encodedMapName
+                                |> Model.Utils.getMap model.collection
+                                |> Maybe.withDefault fakeKeyMap
+                                |> .id
+                                |> (flip Set.member) model.loadedItemsFromMaps
+                                |> not
                     in
                         (!)
                             { model
                                 | isLoading = isLoading
-                                , addItemForm = setAddItemFormFields model encodedMapName
-                                , currentPage = page
+                                , createItemForm = setCreateItemFormFields model encodedMapName
+                                , currentPage = DetailMap encodedMapName
                             }
-                            [ mapItemsCommand model encodedMapName ]
+                            [ loadMapItems model encodedMapName ]
 
                 Nothing ->
-                    (!) { model | currentPage = Detail encodedMapName } []
+                    (!)
+                        { model
+                            | isLoading = False
+                            , currentPage = DetailMap encodedMapName
+                        }
+                        []
+
+        SetPage (EditMap encodedMapName) ->
+            case model.authenticatedWith of
+                Just _ ->
+                    let
+                        keyMap =
+                            encodedMapName
+                                |> Model.Utils.decodeMapName
+                                |> Model.Utils.getMap model.collection
+                                |> Maybe.withDefault fakeKeyMap
+
+                        types =
+                            keyMap.types
+                                |> Dict.map (\k v -> Json.Encode.string v)
+                                |> Dict.toList
+                                |> Json.Encode.object
+                                |> Json.Encode.encode 2
+
+                        fields =
+                            [ Form.Init.setString "id" keyMap.id
+                            , Form.Init.setString "name" keyMap.name
+                            , Form.Init.setString "attributes" types
+                            ]
+
+                        updatedForm =
+                            Form.update (Form.Reset fields) model.editMapForm
+                    in
+                        (!)
+                            { model
+                                | isLoading = False
+                                , currentPage = EditMap encodedMapName
+                                , editMapForm = updatedForm
+                            }
+                            []
+
+                Nothing ->
+                    (!)
+                        { model
+                            | isLoading = False
+                            , currentPage = EditMap encodedMapName
+                        }
+                        []
 
         SetPage page ->
-            (!) { model | currentPage = page } []
+            (!)
+                { model
+                    | isLoading = False
+                    , currentPage = page
+                }
+                []
 
 
 
 -- Helpers
 
 
-decodeGraphQL : Json.Value -> Json.Decoder a -> Maybe a
-decodeGraphQL value decoder =
-    case Json.decodeValue decoder value of
-        Ok decodedValue ->
-            Just decodedValue
-
-        Err err ->
-            value
-                |> Debug.log ("Could not parse json from GraphQL response (`" ++ err ++ "`)")
-                |> \_ -> Nothing
-
-
-mapItemsCommand : Model -> String -> Cmd Msg
-mapItemsCommand model encodedMapName =
+loadMapItems : Model -> String -> Cmd Msg
+loadMapItems model encodedMapName =
     encodedMapName
         |> Model.Utils.decodeMapName
         |> GraphQL.Queries.mapItems model
-
-
-setAddItemFormFields : Model -> String -> Form String Forms.Types.AddItemForm
-setAddItemFormFields model encodedMapName =
-    let
-        keyMap =
-            encodedMapName
-                |> Model.Utils.decodeMapName
-                |> Model.Utils.getMap model.collection
-                |> Maybe.withDefault fakeKeyMap
-
-        fields =
-            List.map (\a -> Form.Init.setString a "") keyMap.attributes
-
-        fields_ =
-            [ Form.Init.setGroup "attributes" fields ]
-    in
-        Form.update (Form.Reset fields_) model.addItemForm
-
-
-storeItems : String -> List KeyItem -> KeyMap -> KeyMap
-storeItems mapId items keyMap =
-    if keyMap.id == mapId then
-        { keyMap | items = Just items }
-    else
-        keyMap

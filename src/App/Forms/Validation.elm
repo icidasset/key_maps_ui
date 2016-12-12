@@ -1,28 +1,43 @@
-module Forms.Validation exposing (addItemForm, createForm)
+module Forms.Validation exposing (..)
 
+import Debug
 import Dict exposing (Dict)
-import Form.Error exposing (Error)
+import Form.Error exposing (Error, ErrorValue(..))
+import Form.Field
 import Form.Validate exposing (..)
 import Forms.Types exposing (..)
 import Json.Decode as Json
 
 
--- {form} Add item
+-- {forms} Item
 
 
-addItemForm : Validation String AddItemForm
-addItemForm =
-    map AddItemForm
-        (field "attributes" (list string))
+keyItemForm : Validation String (Dict String String) -> Validation String KeyItemForm
+keyItemForm attributesValidation =
+    map KeyItemForm
+        (field "attributes" attributesValidation)
+
+
+emptyDictionaryValidation : Validation String (Dict String String)
+emptyDictionaryValidation =
+    succeed Dict.empty
 
 
 
--- {form} Create
+-- {forms} Map
 
 
-createForm : Validation String CreateForm
-createForm =
-    map2 CreateForm
+keyMapForm : Validation String KeyMapForm
+keyMapForm =
+    map2 KeyMapForm
+        (field "name" trimmedString)
+        (field "attributes" typesValidation)
+
+
+keyMapWithIdForm : Validation String KeyMapWithIdForm
+keyMapWithIdForm =
+    map3 KeyMapWithIdForm
+        (field "id" string)
         (field "name" trimmedString)
         (field "attributes" typesValidation)
 

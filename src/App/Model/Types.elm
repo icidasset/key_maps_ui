@@ -5,6 +5,7 @@ import Form exposing (Form)
 import Forms.Types exposing (..)
 import Http
 import Json.Decode as Json
+import Set exposing (Set)
 
 
 type alias Model =
@@ -13,6 +14,7 @@ type alias Model =
     , currentPage : Page
     , errorState : String {- Error state (generic) -}
     , isLoading : Bool
+    , loadedItemsFromMaps : Set String
     , pathToRoot : String
     , ---------------------------------------
       -- Authentication
@@ -26,10 +28,12 @@ type alias Model =
     , ---------------------------------------
       -- Forms
       ---------------------------------------
-      addItemForm : Form String AddItemForm
-    , addItemServerError : Maybe String
-    , createForm : Form String CreateForm
-    , createServerError : Maybe String
+      createItemForm : Form String KeyItemForm
+    , createItemServerError : Maybe String
+    , createMapForm : Form String KeyMapForm
+    , createMapServerError : Maybe String
+    , editMapForm : Form String KeyMapWithIdForm
+    , editMapServerError : Maybe String
     }
 
 
@@ -90,16 +94,19 @@ type Msg
     | SetAuthEmail String
     | StartAuth
       -- Forms
-    | HandleAddItemForm Form.Msg
-    | HandleCreateForm Form.Msg
+    | HandleCreateItemForm Form.Msg
+    | HandleCreateMapForm Form.Msg
+    | HandleEditMapForm Form.Msg
       -- GraphQL
     | CreateMap GraphQLResult
+    | UpdateMap GraphQLResult
     | LoadMaps GraphQLResult
     | LoadMapItems GraphQLResult
     | RemoveMap GraphQLResult
       -- GraphQL :: Execution
     | ExecRemoveMap String
       -- Navigation
+    | GoToEditMap String
     | GoToIndex
     | GoToMap String
     | SetPage Page
@@ -115,8 +122,8 @@ type alias GraphQLResult =
 
 type Page
     = Index
-    | Detail String
-    | LoadingScreen
+    | DetailMap String
+    | EditMap String
     | NotFound
       -- Errors
     | CouldNotLoadMap

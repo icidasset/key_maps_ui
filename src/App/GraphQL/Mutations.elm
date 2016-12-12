@@ -5,75 +5,57 @@ import Dict
 import Form
 import Forms.Types exposing (..)
 import GraphQL.Http exposing (query)
+import GraphQL.Utils exposing (..)
 import Json.Encode as Json
 import Model.Types exposing (KeyMap, Model, Msg(..))
-import Regex exposing (regex)
 import String.Extra exposing (replace)
 
 
-create : Model -> Cmd Msg
-create model =
+createItem : Model -> Cmd Msg
+createItem model =
     let
-        mutation =
+        form =
+            model.createItemForm
+                |> Form.getOutput
+                |> Maybe.withDefault emptyKeyItemForm
+
+        attr =
+            Debug.log "form" form
+    in
+        query
+            CreateMap
+            model
+            "createMapItem"
             """
               mutation M {
-                createMap(
-                  name: {{name}},
-                  attributes: {{attributes}},
-                  types: {{types}}
-                ) {
+                createMapItem() {
                   id,
-                  name,
-                  attributes,
-                  types
+                  map_id,
+                  attributes
                 }
               }
             """
+            []
 
+
+createMap : Model -> Cmd Msg
+createMap model =
+    let
         form =
-            model.createForm
+            model.createMapForm
                 |> Form.getOutput
-                |> Maybe.withDefault emptyCreateForm
+                |> Maybe.withDefault emptyKeyMapForm
 
         formTypes =
             Dict.toList form.attributes
-
-        name =
-            form.name
-                |> Json.string
-                |> Json.encode 0
-
-        attributes =
-            formTypes
-                |> List.map (Tuple.first >> Json.string)
-                |> Json.list
-                |> Json.encode 0
-
-        types =
-            formTypes
-                |> List.map (Tuple.mapSecond Json.string)
-                |> Json.object
-                |> Json.encode 0
-                |> jsonObjectToGqlObject
-
-        mutationWithVariables =
-            mutation
-                |> replace "{{name}}" name
-                |> replace "{{attributes}}" attributes
-                |> replace "{{types}}" types
     in
-        query CreateMap model "createMap" mutationWithVariables
-
-
-remove : Model -> String -> Cmd Msg
-remove model mapId =
-    let
-        mutation =
+        query
+            CreateMap
+            model
+            "createMap"
             """
               mutation M {
-                removeMap(
-                  id: {{id}}
-                ) {
+                createMap() {
                   id,
                   name,
                   attributes,
@@ -81,27 +63,76 @@ remove model mapId =
                 }
               }
             """
+            [ ( "name", Json.string form.name )
+            , ( "attributes", encodeAttributes formTypes )
+            , ( "types.obj", encodeTypes formTypes )
+            ]
 
-        mutationWithVariables =
-            replace "{{id}}" mapId mutation
+
+removeMap : Model -> String -> Cmd Msg
+removeMap model mapId =
+    query
+        RemoveMap
+        model
+        "removeMap"
+        """
+          mutation M {
+            removeMap() {
+              id,
+              name,
+              attributes,
+              types
+            }
+          }
+        """
+        [ ( "id", Json.string mapId ) ]
+
+
+updateMap : Model -> Cmd Msg
+updateMap model =
+    let
+        form =
+            model.editMapForm
+                |> Form.getOutput
+                |> Maybe.withDefault emptyKeyMapWithIdForm
+
+        formTypes =
+            Dict.toList form.attributes
     in
-        query RemoveMap model "removeMap" mutationWithVariables
+        query
+            UpdateMap
+            model
+            "updateMap"
+            """
+            mutation M {
+              updateMap() {
+                id,
+                name,
+                attributes,
+                types
+              }
+            }
+          """
+            [ ( "id", Json.string form.id )
+            , ( "name", Json.string form.name )
+            , ( "attributes", encodeAttributes formTypes )
+            , ( "types.obj", encodeTypes formTypes )
+            ]
 
 
 
 -- Helpers
 
 
-jsonObjectToGqlObject : String -> String
-jsonObjectToGqlObject =
-    let
-        fn =
-            \{ match, submatches } ->
-                case List.head submatches of
-                    Just (Just x) ->
-                        x ++ ":"
+encodeAttributes : List ( String, String ) -> Json.Value
+encodeAttributes formTypes =
+    formTypes
+        |> List.map (Tuple.first >> Json.string)
+        |> Json.list
 
-                    _ ->
-                        match
-    in
-        Regex.replace Regex.All (regex "\"(\\w+)\":") fn
+
+encodeTypes : List ( String, String ) -> Json.Value
+encodeTypes formTypes =
+    formTypes
+        |> List.map (Tuple.mapSecond Json.string)
+        |> Json.object
