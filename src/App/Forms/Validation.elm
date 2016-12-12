@@ -12,15 +12,11 @@ import Json.Decode as Json
 -- {forms} Item
 
 
-keyItemForm : Validation String (Dict String String) -> Validation String KeyItemForm
+keyItemForm : Validation String (List ( String, String )) -> Validation String KeyItemForm
 keyItemForm attributesValidation =
-    map KeyItemForm
+    map2 KeyItemForm
+        (field "mapName" string)
         (field "attributes" attributesValidation)
-
-
-emptyDictionaryValidation : Validation String (Dict String String)
-emptyDictionaryValidation =
-    succeed Dict.empty
 
 
 

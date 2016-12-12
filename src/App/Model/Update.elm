@@ -16,7 +16,7 @@ import Http exposing (Error(..))
 import Json.Decode as Json
 import Json.Encode
 import Model.Types exposing (..)
-import Model.Utils exposing (mapUrl, storeItems)
+import Model.Utils exposing (mapUrl, storeItem, storeItems)
 import Navigation exposing (modifyUrl, newUrl)
 import Set
 import Signals.Ports as Ports
@@ -148,7 +148,7 @@ withMessage msg model =
                     formMsg
             of
                 ( m, True ) ->
-                    (!) m [ GraphQL.Mutations.createItem m ]
+                    (!) { m | isLoading = False } [ GraphQL.Mutations.createItem m ]
 
                 ( m, False ) ->
                     (!) m []
@@ -220,6 +220,30 @@ withMessage msg model =
 
         CreateMap (Err _) ->
             (!) { model | isLoading = False, createMapServerError = Just genericError } []
+
+        -- GraphQL :: Create map item
+        CreateMapItem (Ok value) ->
+            let
+                maybeItem =
+                    decodeGraphQL value Model.Utils.keyItemDecoder
+
+                collection =
+                    case maybeItem of
+                        Just item ->
+                            List.map (storeItem item.map_id item) model.collection
+
+                        Nothing ->
+                            model.collection
+            in
+                (!)
+                    { model | isLoading = False, collection = collection }
+                    []
+
+        CreateMapItem (Err (BadPayload err _)) ->
+            (!) { model | isLoading = False, createItemServerError = Just err } []
+
+        CreateMapItem (Err _) ->
+            (!) { model | isLoading = False, createItemServerError = Just genericError } []
 
         -- GraphQL :: Load map items
         LoadMapItems (Ok value) ->

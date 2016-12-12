@@ -99,6 +99,7 @@ type Msg
     | HandleEditMapForm Form.Msg
       -- GraphQL
     | CreateMap GraphQLResult
+    | CreateMapItem GraphQLResult
     | UpdateMap GraphQLResult
     | LoadMaps GraphQLResult
     | LoadMapItems GraphQLResult

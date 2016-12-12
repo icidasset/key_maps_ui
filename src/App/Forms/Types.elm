@@ -20,12 +20,16 @@ allowedAttributeTypes =
 
 
 type alias KeyItemForm =
-    { attributes : Dict String String }
+    { mapName : String
+    , attributes : List ( String, String )
+    }
 
 
 emptyKeyItemForm : KeyItemForm
 emptyKeyItemForm =
-    { attributes = Dict.empty }
+    { mapName = ""
+    , attributes = []
+    }
 
 
 type alias KeyMapForm =

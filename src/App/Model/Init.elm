@@ -2,7 +2,8 @@ module Model.Init exposing (..)
 
 import Auth.Flow exposing (authFlow)
 import Form
-import Forms.Validation exposing (emptyDictionaryValidation)
+import Form.Validate
+import Forms.Validation
 import Model.Types exposing (Model, Msg)
 import Navigation
 import Routing
@@ -19,7 +20,7 @@ withProgramFlags : ProgramFlags -> Navigation.Location -> ( Model, Cmd Msg )
 withProgramFlags flags location =
     let
         emptyKeyItemForm =
-            Forms.Validation.keyItemForm emptyDictionaryValidation
+            Forms.Validation.keyItemForm (Form.Validate.succeed [])
 
         model =
             { apiHost = "https://keymaps.herokuapp.com"

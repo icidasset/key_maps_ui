@@ -77,6 +77,14 @@ mapUrl mapName =
     "/maps/" ++ encodeMapName mapName
 
 
+storeItem : String -> KeyItem -> KeyMap -> KeyMap
+storeItem mapId item keyMap =
+    if keyMap.id == mapId then
+        { keyMap | items = Maybe.map (\col -> col ++ [ item ]) keyMap.items }
+    else
+        keyMap
+
+
 storeItems : String -> List KeyItem -> KeyMap -> KeyMap
 storeItems mapId items keyMap =
     if keyMap.id == mapId then

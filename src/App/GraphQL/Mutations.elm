@@ -18,12 +18,9 @@ createItem model =
             model.createItemForm
                 |> Form.getOutput
                 |> Maybe.withDefault emptyKeyItemForm
-
-        attr =
-            Debug.log "form" form
     in
         query
-            CreateMap
+            CreateMapItem
             model
             "createMapItem"
             """
@@ -35,7 +32,10 @@ createItem model =
                 }
               }
             """
-            []
+            ((++)
+                [ ( "map", Json.string form.mapName ) ]
+                (List.map (Tuple.mapSecond Json.string) form.attributes)
+            )
 
 
 createMap : Model -> Cmd Msg
