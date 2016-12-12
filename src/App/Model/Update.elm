@@ -339,7 +339,7 @@ withMessage msg model =
                     }
                     [ case keyMap of
                         Just km ->
-                            newUrl (mapUrl km.name)
+                            newUrl (mapUrl km.name ++ "/edit")
 
                         Nothing ->
                             Cmd.none
