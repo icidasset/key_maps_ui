@@ -58,3 +58,16 @@ emptyKeyMapWithIdForm =
     , name = ""
     , attributes = Dict.empty
     }
+
+
+type alias SortItemsForm =
+    { mapId : String
+    , sortBy : String
+    }
+
+
+emptySortItemsForm : SortItemsForm
+emptySortItemsForm =
+    { mapId = ""
+    , sortBy = ""
+    }

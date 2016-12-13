@@ -15,6 +15,7 @@ import GraphQL.Utils exposing (decodeGraphQL)
 import Http exposing (Error(..))
 import Json.Decode as Json
 import Json.Encode
+import List.Extra as List
 import Model.Types exposing (..)
 import Model.Utils exposing (mapUrl, storeItem, storeItems)
 import Navigation exposing (modifyUrl, newUrl)
@@ -182,6 +183,41 @@ withMessage msg model =
                 ( m, False ) ->
                     (!) m []
 
+        HandleSortItemsForm formMsg ->
+            let
+                newModel =
+                    { model | sortItemsForm = Form.update formMsg model.sortItemsForm }
+            in
+                (!)
+                    newModel
+                    [ case formMsg of
+                        Form.Input _ _ (Form.Field.String sortValue) ->
+                            let
+                                mapId =
+                                    newModel.sortItemsForm
+                                        |> Form.getFieldAsString "mapId"
+                                        |> .value
+                                        |> Maybe.withDefault "InvalidId"
+
+                                keyMap =
+                                    List.find (\m -> m.id == mapId) newModel.collection
+
+                                settings =
+                                    keyMap
+                                        |> Maybe.map (\m -> m.settings)
+                                        |> Maybe.map (\s -> Dict.insert "sortBy" sortValue s)
+                            in
+                                case settings of
+                                    Just settings_ ->
+                                        GraphQL.Mutations.updateMapSettings newModel settings_
+
+                                    Nothing ->
+                                        Cmd.none
+
+                        _ ->
+                            Cmd.none
+                    ]
+
         ---------------------------------------
         -- GraphQL
         ---------------------------------------
@@ -323,7 +359,14 @@ withMessage msg model =
                 collection =
                     case keyMap of
                         Just m ->
-                            m :: List.filter (\c -> c.id /= m.id) model.collection
+                            List.map
+                                (\c ->
+                                    if c.id == m.id then
+                                        { m | items = c.items }
+                                    else
+                                        c
+                                )
+                                model.collection
 
                         Nothing ->
                             model.collection
@@ -348,6 +391,33 @@ withMessage msg model =
         UpdateMap (Err _) ->
             (!) { model | isLoading = False, editMapServerError = Just genericError } []
 
+        -- GraphQL :: Update map settings
+        UpdateMapSettings (Ok value) ->
+            let
+                keyMap =
+                    decodeGraphQL value Model.Utils.keyMapDecoder
+
+                collection =
+                    case keyMap of
+                        Just m ->
+                            List.map
+                                (\c ->
+                                    if c.id == m.id then
+                                        { m | items = c.items }
+                                    else
+                                        c
+                                )
+                                model.collection
+
+                        Nothing ->
+                            model.collection
+            in
+                (!) { model | collection = collection } []
+
+        UpdateMapSettings (Err _) ->
+            {- TODO? -}
+            (!) model []
+
         ---------------------------------------
         -- Navigation
         ---------------------------------------
@@ -366,18 +436,13 @@ withMessage msg model =
                 Just _ ->
                     let
                         isLoading =
-                            encodedMapName
-                                |> Model.Utils.decodeMapName
-                                |> Model.Utils.getMap model.collection
-                                |> Maybe.withDefault fakeKeyMap
-                                |> .id
-                                |> (flip Set.member) model.loadedItemsFromMaps
-                                |> not
+                            not (Model.Utils.haveMapItemsBeenLoaded model encodedMapName)
                     in
                         (!)
                             { model
                                 | isLoading = isLoading
                                 , createItemForm = setCreateItemFormFields model encodedMapName
+                                , sortItemsForm = setSortItemsFormFields model encodedMapName
                                 , currentPage = DetailMap encodedMapName
                             }
                             [ loadMapItems model encodedMapName ]

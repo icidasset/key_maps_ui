@@ -62,14 +62,13 @@ configPanel model keyMap =
                     , li_a
                         [ onClick (GoToEditMap keyMap.name) ]
                         [ text "Edit map" ]
-                    , li_a
-                        [ onClick (ConfirmToRemoveMap keyMap.id) ]
-                        [ text "Remove map" ]
                     ]
                 ]
             ]
         , blockRow
             [ Html.map HandleCreateItemForm (addItemForm model keyMap) ]
+        , blockRow
+            [ Html.map HandleSortItemsForm (sortForm model keyMap) ]
         ]
 
 
@@ -125,6 +124,23 @@ addItemForm model keyMap =
             ]
 
 
+sortForm : Model -> KeyMap -> Html Form.Msg
+sortForm model keyMap =
+    Html.form
+        []
+        [ label
+            [ class "is-subtle" ]
+            [ text "Sort by" ]
+        , div
+            [ class "select-box" ]
+            [ Input.selectInput
+                (List.map (\a -> ( a, a )) keyMap.attributes)
+                (Form.getFieldAsString "sortBy" model.sortItemsForm)
+                []
+            ]
+        ]
+
+
 
 -- Data
 
@@ -132,8 +148,26 @@ addItemForm model keyMap =
 data : Model -> KeyMap -> Html Msg
 data model keyMap =
     let
+        firstAttr =
+            keyMap.attributes
+                |> List.sort
+                |> List.head
+                |> Maybe.withDefault ""
+
+        sortBy =
+            keyMap.settings
+                |> Dict.get "sortBy"
+                |> Maybe.withDefault firstAttr
+
         items =
             Model.Utils.getMapItems (Just keyMap)
+                |> List.map toKeyItemWithStringAttributes
+                |> List.sortWith
+                    (\a b ->
+                        compare
+                            (Maybe.withDefault "" (Dict.get sortBy a.attributes))
+                            (Maybe.withDefault "" (Dict.get sortBy b.attributes))
+                    )
     in
         if List.isEmpty items then
             div
@@ -145,12 +179,11 @@ data model keyMap =
                 (List.map dataItem items)
 
 
-dataItem : KeyItem -> Html Msg
+dataItem : KeyItemWithStringAttributes -> Html Msg
 dataItem item =
     div
         [ class "data-list__item" ]
         (item.attributes
-            |> decodeAttributes
             |> Dict.map dataItemAttribute
             |> Dict.values
         )
@@ -181,3 +214,11 @@ decodeAttributes attributes =
                 Result.withDefault "UNPARSABLE VALUE" (Json.decodeValue Json.string i)
     in
         Dict.map decoder attributes
+
+
+toKeyItemWithStringAttributes : KeyItem -> KeyItemWithStringAttributes
+toKeyItemWithStringAttributes item =
+    { id = item.id
+    , map_id = item.map_id
+    , attributes = decodeAttributes item.attributes
+    }

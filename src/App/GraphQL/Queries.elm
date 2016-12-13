@@ -18,7 +18,8 @@ maps model =
               id,
               name,
               attributes,
-              types
+              types,
+              settings
             }
           }
         """

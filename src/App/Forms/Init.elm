@@ -75,3 +75,35 @@ setEditMapFormFields model encodedMapName =
             ]
     in
         Form.update (Form.Reset fields) model.editMapForm
+
+
+
+-- Sort map items
+
+
+setSortItemsFormFields : Model -> String -> Form String Forms.Types.SortItemsForm
+setSortItemsFormFields model encodedMapName =
+    let
+        keyMap =
+            encodedMapName
+                |> Model.Utils.decodeMapName
+                |> Model.Utils.getMap model.collection
+                |> Maybe.withDefault fakeKeyMap
+
+        firstAttr =
+            keyMap.attributes
+                |> List.sort
+                |> List.head
+                |> Maybe.withDefault ""
+
+        sortBy =
+            keyMap.settings
+                |> Dict.get "sortBy"
+                |> Maybe.withDefault firstAttr
+
+        fields =
+            [ Form.Init.setString "mapId" keyMap.id
+            , Form.Init.setString "sortBy" sortBy
+            ]
+    in
+        Form.update (Form.Reset fields) model.sortItemsForm

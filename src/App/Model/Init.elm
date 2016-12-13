@@ -48,6 +48,7 @@ withProgramFlags flags location =
             , createMapServerError = Nothing
             , editMapForm = Form.initial [] Forms.Validation.keyMapWithIdForm
             , editMapServerError = Nothing
+            , sortItemsForm = Form.initial [] Forms.Validation.sortItemsForm
             }
     in
         authFlow model location

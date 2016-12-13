@@ -34,6 +34,7 @@ type alias Model =
     , createMapServerError : Maybe String
     , editMapForm : Form String KeyMapWithIdForm
     , editMapServerError : Maybe String
+    , sortItemsForm : Form String SortItemsForm
     }
 
 
@@ -55,6 +56,7 @@ type alias KeyMap =
     , name : String
     , attributes : List String
     , types : Dict String String
+    , settings : Dict String String
     , -- Local
       items : Maybe (List KeyItem)
     }
@@ -66,6 +68,7 @@ fakeKeyMap =
     , name = "FAKE"
     , attributes = []
     , types = Dict.empty
+    , settings = Dict.empty
     , items = Nothing
     }
 
@@ -74,6 +77,13 @@ type alias KeyItem =
     { id : String
     , map_id : String
     , attributes : Dict String Json.Value
+    }
+
+
+type alias KeyItemWithStringAttributes =
+    { id : String
+    , map_id : String
+    , attributes : Dict String String
     }
 
 
@@ -97,13 +107,15 @@ type Msg
     | HandleCreateItemForm Form.Msg
     | HandleCreateMapForm Form.Msg
     | HandleEditMapForm Form.Msg
+    | HandleSortItemsForm Form.Msg
       -- GraphQL
     | CreateMap GraphQLResult
     | CreateMapItem GraphQLResult
-    | UpdateMap GraphQLResult
     | LoadMaps GraphQLResult
     | LoadMapItems GraphQLResult
     | RemoveMap GraphQLResult
+    | UpdateMap GraphQLResult
+    | UpdateMapSettings GraphQLResult
       -- GraphQL :: Execution
     | ExecRemoveMap String
       -- Navigation

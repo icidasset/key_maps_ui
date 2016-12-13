@@ -3,6 +3,7 @@ module Model.Utils exposing (..)
 import Http
 import Json.Decode as Json
 import Model.Types exposing (..)
+import Set
 
 
 -- Querying
@@ -21,6 +22,16 @@ getMapItems keyMap =
         |> Maybe.map (\m -> m.items)
         |> Maybe.map (\m -> Maybe.withDefault [] m)
         |> Maybe.withDefault []
+
+
+haveMapItemsBeenLoaded : Model -> String -> Bool
+haveMapItemsBeenLoaded model encodedMapName =
+    encodedMapName
+        |> decodeMapName
+        |> getMap model.collection
+        |> Maybe.withDefault fakeKeyMap
+        |> .id
+        |> (flip Set.member) model.loadedItemsFromMaps
 
 
 isEmptyKeyMap : List KeyMap -> String -> Bool
@@ -42,11 +53,12 @@ mapFilter lowercaseMapName m =
 
 keyMapDecoder : Json.Decoder KeyMap
 keyMapDecoder =
-    Json.map5 KeyMap
+    Json.map6 KeyMap
         (Json.field "id" <| Json.string)
         (Json.field "name" <| Json.string)
         (Json.field "attributes" <| Json.list Json.string)
         (Json.field "types" <| Json.dict Json.string)
+        (Json.field "settings" <| Json.dict Json.string)
         (Json.maybe <| Json.field "items" (Json.list keyItemDecoder))
 
 

@@ -4,7 +4,7 @@ import Form
 import Form.Input as Input
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onSubmit)
+import Html.Events exposing (onClick, onSubmit)
 import Html.Events.Extra exposing (onClickPreventDefault)
 import Model.Types exposing (..)
 import Views.Utils exposing (blockRow, li_a)
@@ -55,6 +55,9 @@ leftSide model keyMap =
                         [ span [] [ text "☜" ]
                         , text "Index"
                         ]
+                    , li_a
+                        [ onClick (ConfirmToRemoveMap keyMap.id) ]
+                        [ text "Remove map" ]
                     ]
                 ]
             ]

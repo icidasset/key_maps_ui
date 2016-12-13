@@ -66,8 +66,8 @@ typesValidator dict =
             Err <| err "A map must have at least one attribute"
         else if List.any isInvalidKey keys then
             Err <| err """
-                         Keys can only contain alphanumeric characters,
-                         underscores and dashes
+                         Keys can only contain alphanumeric characters
+                         and underscores
                        """
         else
             case List.all isProperType values of
@@ -85,7 +85,18 @@ isProperType theType =
 
 isInvalidKey : String -> Bool
 isInvalidKey theKey =
-    Regex.contains (regex "[^\\w-]") theKey
+    Regex.contains (regex "[^\\w]") theKey
+
+
+
+-- {forms} Sort
+
+
+sortItemsForm : Validation String SortItemsForm
+sortItemsForm =
+    map2 SortItemsForm
+        (field "mapId" string)
+        (field "sortBy" string)
 
 
 

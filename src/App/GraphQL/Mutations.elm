@@ -1,7 +1,7 @@
 module GraphQL.Mutations exposing (..)
 
 import Debug
-import Dict
+import Dict exposing (Dict)
 import Form
 import Forms.Types exposing (..)
 import GraphQL.Http exposing (query)
@@ -59,7 +59,8 @@ createMap model =
                   id,
                   name,
                   attributes,
-                  types
+                  types,
+                  settings
                 }
               }
             """
@@ -109,7 +110,8 @@ updateMap model =
                 id,
                 name,
                 attributes,
-                types
+                types,
+                settings
               }
             }
           """
@@ -117,6 +119,39 @@ updateMap model =
             , ( "name", Json.string form.name )
             , ( "attributes", encodeAttributes formTypes )
             , ( "types.obj", encodeTypes formTypes )
+            ]
+
+
+updateMapSettings : Model -> Dict String String -> Cmd Msg
+updateMapSettings model settings =
+    let
+        form =
+            model.sortItemsForm
+                |> Form.getOutput
+                |> Maybe.withDefault emptySortItemsForm
+    in
+        query
+            UpdateMapSettings
+            model
+            "updateMap"
+            """
+            mutation M {
+              updateMap() {
+                id,
+                name,
+                attributes,
+                types,
+                settings
+              }
+            }
+          """
+            [ ( "id", Json.string form.mapId )
+            , ( "settings.obj"
+              , settings
+                    |> Dict.map (\_ -> Json.string)
+                    |> Dict.toList
+                    |> Json.object
+              )
             ]
 
 
