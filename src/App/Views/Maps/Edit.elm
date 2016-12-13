@@ -19,7 +19,7 @@ view model keyMap =
             [ div
                 [ class "block" ]
                 [ h2
-                    [ class "is-colored block__title" ]
+                    [ class "is-more-subtle is-colored block__title" ]
                     [ text keyMap.name ]
                 , leftSide model keyMap
                 ]

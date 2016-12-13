@@ -70,7 +70,6 @@ withMessage msg model =
             (!) { model | authenticatedWith = Just token } []
 
         Deauthenticate ->
-            -- TODO
             (!) { model | authenticatedWith = Nothing } []
 
         SetAuthEmail email ->
@@ -312,7 +311,7 @@ withMessage msg model =
             (!) model []
 
         RemoveMap (Err _) ->
-            {- TODO -}
+            {- TODO: Not sure what to do if the removal fails -}
             (!) model []
 
         -- GraphQL :: Update map
@@ -324,9 +323,7 @@ withMessage msg model =
                 collection =
                     case keyMap of
                         Just m ->
-                            (++)
-                                (List.filter (\c -> c.id /= m.id) model.collection)
-                                [ m ]
+                            m :: List.filter (\c -> c.id /= m.id) model.collection
 
                         Nothing ->
                             model.collection
@@ -396,36 +393,13 @@ withMessage msg model =
         SetPage (EditMap encodedMapName) ->
             case model.authenticatedWith of
                 Just _ ->
-                    let
-                        keyMap =
-                            encodedMapName
-                                |> Model.Utils.decodeMapName
-                                |> Model.Utils.getMap model.collection
-                                |> Maybe.withDefault fakeKeyMap
-
-                        types =
-                            keyMap.types
-                                |> Dict.map (\k v -> Json.Encode.string v)
-                                |> Dict.toList
-                                |> Json.Encode.object
-                                |> Json.Encode.encode 2
-
-                        fields =
-                            [ Form.Init.setString "id" keyMap.id
-                            , Form.Init.setString "name" keyMap.name
-                            , Form.Init.setString "attributes" types
-                            ]
-
-                        updatedForm =
-                            Form.update (Form.Reset fields) model.editMapForm
-                    in
-                        (!)
-                            { model
-                                | isLoading = False
-                                , currentPage = EditMap encodedMapName
-                                , editMapForm = updatedForm
-                            }
-                            []
+                    (!)
+                        { model
+                            | isLoading = False
+                            , currentPage = EditMap encodedMapName
+                            , editMapForm = setEditMapFormFields model encodedMapName
+                        }
+                        []
 
                 Nothing ->
                     (!)
@@ -436,12 +410,7 @@ withMessage msg model =
                         []
 
         SetPage page ->
-            (!)
-                { model
-                    | isLoading = False
-                    , currentPage = page
-                }
-                []
+            (!) { model | isLoading = False, currentPage = page } []
 
 
 

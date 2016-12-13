@@ -6,12 +6,13 @@ import Form.Init
 import Form.Validate as V exposing (..)
 import Forms.Types
 import Forms.Validation
+import Json.Encode
 import List.Extra as List
 import Model.Types exposing (Model, fakeKeyMap)
 import Model.Utils
 
 
--- Add item
+-- Create item
 
 
 setCreateItemFormFields : Model -> String -> Form String Forms.Types.KeyItemForm
@@ -24,7 +25,9 @@ setCreateItemFormFields model encodedMapName =
                 |> Maybe.withDefault fakeKeyMap
 
         fields =
-            List.map (\a -> Form.Init.setString ("attributes." ++ a) "") keyMap.attributes
+            List.map
+                (\a -> Form.Init.setString ("attributes." ++ a) "")
+                keyMap.attributes
 
         parentFields =
             [ Form.Init.setString "mapName" keyMap.name
@@ -43,3 +46,32 @@ setCreateItemFormFields model encodedMapName =
                 |> Maybe.withDefault (succeed [])
     in
         Form.initial parentFields (Forms.Validation.keyItemForm validation)
+
+
+
+-- Edit map
+
+
+setEditMapFormFields : Model -> String -> Form String Forms.Types.KeyMapWithIdForm
+setEditMapFormFields model encodedMapName =
+    let
+        keyMap =
+            encodedMapName
+                |> Model.Utils.decodeMapName
+                |> Model.Utils.getMap model.collection
+                |> Maybe.withDefault fakeKeyMap
+
+        types =
+            keyMap.types
+                |> Dict.map (\k v -> Json.Encode.string v)
+                |> Dict.toList
+                |> Json.Encode.object
+                |> Json.Encode.encode 2
+
+        fields =
+            [ Form.Init.setString "id" keyMap.id
+            , Form.Init.setString "name" keyMap.name
+            , Form.Init.setString "attributes" types
+            ]
+    in
+        Form.update (Form.Reset fields) model.editMapForm

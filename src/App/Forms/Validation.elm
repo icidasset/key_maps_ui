@@ -1,12 +1,13 @@
 module Forms.Validation exposing (..)
 
-import Debug
 import Dict exposing (Dict)
 import Form.Error exposing (Error, ErrorValue(..))
 import Form.Field
 import Form.Validate exposing (..)
 import Forms.Types exposing (..)
 import Json.Decode as Json
+import Regex exposing (regex)
+import String.Extra as String
 
 
 -- {forms} Item
@@ -55,19 +56,26 @@ typesJsonValidator json =
 typesValidator : Dict String String -> Result (Error String) (Dict String String)
 typesValidator dict =
     let
+        keys =
+            Dict.keys dict
+
         values =
-            (Dict.values dict)
+            Dict.values dict
     in
-        -- TODO: check if the key has no spaces in it
         if List.isEmpty values then
-            Err (customError "A map must have at least one attribute")
+            Err <| err "A map must have at least one attribute"
+        else if List.any isInvalidKey keys then
+            Err <| err """
+                         Keys can only contain alphanumeric characters,
+                         underscores and dashes
+                       """
         else
             case List.all isProperType values of
                 True ->
                     Ok dict
 
                 False ->
-                    Err (customError "One of your attributes has an invalid type")
+                    Err <| err "One of your attributes has an invalid type"
 
 
 isProperType : String -> Bool
@@ -75,8 +83,20 @@ isProperType theType =
     List.member theType allowedAttributeTypes
 
 
+isInvalidKey : String -> Bool
+isInvalidKey theKey =
+    Regex.contains (regex "[^\\w-]") theKey
+
+
 
 -- Helpers
+
+
+err : String -> Error String
+err errorMessage =
+    errorMessage
+        |> String.clean
+        |> customError
 
 
 flippedCustomValidation :

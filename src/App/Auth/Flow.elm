@@ -25,11 +25,6 @@ authFlow model location =
 -- Private
 
 
-goToExchangeErrorPage : List (Cmd Msg)
-goToExchangeErrorPage =
-    [ Navigation.newUrl "/auth/exchange/error" ]
-
-
 exchangeValidateOrPass : Model -> Navigation.Location -> Maybe (Cmd Msg)
 exchangeValidateOrPass model location =
     [ Maybe.map (Auth.doExchange model) (Auth.needsExchange location)
@@ -40,8 +35,9 @@ exchangeValidateOrPass model location =
         |> Maybe.withDefault Nothing
 
 
-
--- Helpers
+goToExchangeErrorPage : List (Cmd Msg)
+goToExchangeErrorPage =
+    [ Navigation.newUrl "/auth/exchange/error" ]
 
 
 isJust : Maybe a -> Bool
