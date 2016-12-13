@@ -176,21 +176,21 @@ data model keyMap =
         else
             div
                 [ class "data-list" ]
-                (List.map dataItem items)
+                (List.map (dataItem sortBy) items)
 
 
-dataItem : KeyItemWithStringAttributes -> Html Msg
-dataItem item =
+dataItem : String -> KeyItemWithStringAttributes -> Html Msg
+dataItem sortBy item =
     div
         [ class "data-list__item" ]
         (item.attributes
-            |> Dict.map dataItemAttribute
+            |> Dict.map (dataItemAttribute sortBy)
             |> Dict.values
         )
 
 
-dataItemAttribute : String -> String -> Html Msg
-dataItemAttribute key value =
+dataItemAttribute : String -> String -> String -> Html Msg
+dataItemAttribute sortBy key value =
     div
         []
         [ div
@@ -198,7 +198,11 @@ dataItemAttribute key value =
             [ text key ]
         , div
             []
-            [ text value ]
+            [ if key == sortBy then
+                strong [] [ text value ]
+              else
+                text value
+            ]
         ]
 
 
