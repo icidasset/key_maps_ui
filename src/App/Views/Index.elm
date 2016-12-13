@@ -20,10 +20,10 @@ view model =
             [ class "blocks__row" ]
             [ div
                 [ class "block" ]
-                (list model)
+                (List.map (Html.map HandleCreateMapForm) (sidebar model))
             , div
                 [ class "block" ]
-                (List.map (Html.map HandleCreateMapForm) (sidebar model))
+                (list model)
             ]
         ]
 
