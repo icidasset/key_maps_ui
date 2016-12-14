@@ -7,7 +7,9 @@ import Forms.Types exposing (..)
 import GraphQL.Http exposing (query)
 import GraphQL.Utils exposing (..)
 import Json.Encode as Json
-import Model.Types exposing (KeyMap, Model, Msg(..))
+import List.Extra as List
+import Model.Types exposing (..)
+import Model.Utils
 import String.Extra exposing (replace)
 
 
@@ -18,20 +20,39 @@ createItem model =
             model.createItemForm
                 |> Form.getOutput
                 |> Maybe.withDefault emptyKeyItemForm
-    in
-        query
-            CreateMapItem
-            model
-            "createMapItem"
+
+        lowercaseMapName =
+            String.toLower form.mapName
+
+        keyMap =
+            model.collection
+                |> List.find (Model.Utils.mapFilter lowercaseMapName)
+                |> Maybe.withDefault fakeKeyMap
+
+        ( variableTypes, variableNames ) =
+            GraphQL.Utils.buildAttrVariables keyMap
+
+        mutation =
             """
-              mutation M {
-                createMapItem() {
+              mutation _ ($map: String, VAR_TYPES) {
+                createMapItem (map: $map, VAR_NAMES) {
                   id,
                   map_id,
                   attributes
                 }
               }
             """
+
+        mutationWithVariables =
+            mutation
+                |> replace "VAR_TYPES" variableTypes
+                |> replace "VAR_NAMES" variableNames
+    in
+        query
+            CreateMapItem
+            model
+            "createMapItem"
+            mutationWithVariables
             ((++)
                 [ ( "map", Json.string form.mapName ) ]
                 (List.map (Tuple.mapSecond Json.string) form.attributes)
@@ -54,8 +75,16 @@ createMap model =
             model
             "createMap"
             """
-              mutation M {
-                createMap() {
+              mutation _ (
+                $name: String,
+                $attributes: Array,
+                $types: Object
+              ) {
+                createMap (
+                  name: $name,
+                  attributes: $attributes,
+                  types: $types
+                ) {
                   id,
                   name,
                   attributes,
@@ -66,7 +95,7 @@ createMap model =
             """
             [ ( "name", Json.string form.name )
             , ( "attributes", encodeAttributes formTypes )
-            , ( "types.obj", encodeTypes formTypes )
+            , ( "types", encodeTypes formTypes )
             ]
 
 
@@ -77,8 +106,8 @@ removeMap model mapId =
         model
         "removeMap"
         """
-          mutation M {
-            removeMap() {
+          mutation _ ($id: String) {
+            removeMap (id: $id) {
               id,
               name,
               attributes,
@@ -105,8 +134,18 @@ updateMap model =
             model
             "updateMap"
             """
-            mutation M {
-              updateMap() {
+            mutation _ (
+              $id: String,
+              $name: String,
+              $attributes: Array,
+              $types: Object
+            ) {
+              updateMap (
+                id: $id,
+                name: $name,
+                attributes: $attributes,
+                types: $types
+              ) {
                 id,
                 name,
                 attributes,
@@ -118,7 +157,7 @@ updateMap model =
             [ ( "id", Json.string form.id )
             , ( "name", Json.string form.name )
             , ( "attributes", encodeAttributes formTypes )
-            , ( "types.obj", encodeTypes formTypes )
+            , ( "types", encodeTypes formTypes )
             ]
 
 
@@ -135,8 +174,14 @@ updateMapSettings model settings =
             model
             "updateMap"
             """
-            mutation M {
-              updateMap() {
+            mutation _ (
+              $id: String,
+              $settings: Object
+            ) {
+              updateMap (
+                id: $id,
+                settings: $settings
+              ) {
                 id,
                 name,
                 attributes,
@@ -146,7 +191,7 @@ updateMapSettings model settings =
             }
           """
             [ ( "id", Json.string form.mapId )
-            , ( "settings.obj"
+            , ( "settings"
               , settings
                     |> Dict.map (\_ -> Json.string)
                     |> Dict.toList

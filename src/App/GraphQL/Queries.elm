@@ -13,8 +13,8 @@ maps model =
         model
         "maps"
         """
-          query Q {
-            maps() {
+          query _ {
+            maps {
               id,
               name,
               attributes,
@@ -33,8 +33,8 @@ mapItems model mapName =
         model
         "mapItems"
         """
-          query Q {
-            mapItems() {
+          query _ ($map: String) {
+            mapItems (map: $map) {
               id,
               map_id,
               attributes

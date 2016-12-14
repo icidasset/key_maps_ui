@@ -86,6 +86,7 @@ isProperType theType =
 isInvalidKey : String -> Bool
 isInvalidKey theKey =
     Regex.contains (regex "[^\\w]") theKey
+        || Regex.contains (regex "^[mM][aA][pP]$") theKey
 
 
 

@@ -101,6 +101,7 @@ withMessage msg model =
                 newModel =
                     { model
                         | authenticatedWith = Just token
+                        , isLoading = True
                         , userId = Auth.Utils.getUserIdFromToken token
                     }
             in
@@ -222,6 +223,13 @@ withMessage msg model =
         ---------------------------------------
         -- GraphQL
         ---------------------------------------
+        ExecRemoveMap id ->
+            (!)
+                { model | collection = List.filter (\c -> c.id /= id) model.collection }
+                [ GraphQL.Mutations.removeMap model id
+                , modifyUrl "/"
+                ]
+
         -- GraphQL :: Create map
         CreateMap (Ok value) ->
             let
@@ -336,13 +344,6 @@ withMessage msg model =
             (!) { model | isLoading = False } [ newUrl "/errors/maps" ]
 
         -- GraphQL :: Remove map
-        ExecRemoveMap id ->
-            (!)
-                { model | collection = List.filter (\c -> c.id /= id) model.collection }
-                [ GraphQL.Mutations.removeMap model id
-                , modifyUrl "/"
-                ]
-
         RemoveMap (Ok _) ->
             {- Nothing needs to happen, silently remove -}
             (!) model []

@@ -1,40 +1,44 @@
 module GraphQL.Http exposing (query)
 
-import GraphQL.Utils exposing (insertVariables)
 import Http exposing (header)
-import Json.Decode as Json
+import Json.Decode
+import Json.Encode
 import Model.Types exposing (Model, Msg)
 import String.Extra as String
 import Utils
 
 
 type alias QueryMsg =
-    Result Http.Error Json.Value -> Msg
+    Result Http.Error Json.Decode.Value -> Msg
 
 
 type alias Variables =
-    List ( String, Json.Value )
+    List ( String, Json.Encode.Value )
 
 
 query : QueryMsg -> Model -> String -> String -> Variables -> Cmd Msg
 query msg model queryName query variables =
     let
-        queryWithVariables =
-            insertVariables query queryName variables
-
         url =
-            model.apiHost ++ "/api?query=" ++ (encodeQuery queryWithVariables)
+            model.apiHost ++ "/api"
 
         authToken =
             Maybe.withDefault "" model.authenticatedWith
+
+        json =
+            Json.Encode.object
+                [ ( "operationName", Json.Encode.string "_" )
+                , ( "query", Json.Encode.string query )
+                , ( "variables", Json.Encode.object variables )
+                ]
     in
         Http.send
             (msg)
             (Http.request
-                { method = "GET"
+                { method = "POST"
                 , headers = [ header "Authorization" authToken ]
                 , url = url
-                , body = Http.emptyBody
+                , body = Http.jsonBody json
                 , expect = Http.expectStringResponse (expecter queryName)
                 , timeout = Nothing
                 , withCredentials = False
@@ -54,18 +58,18 @@ encodeQuery query =
         |> Http.encodeUri
 
 
-expecter : String -> Http.Response String -> Result String Json.Value
+expecter : String -> Http.Response String -> Result String Json.Decode.Value
 expecter queryName response =
     -- GraphQL error becomes Http error
-    case Json.decodeString Utils.jsonErrorsDecoder response.body of
+    case Json.Decode.decodeString Utils.jsonErrorsDecoder response.body of
         Ok err ->
             Err err
 
         _ ->
             -- GraphQL data becomes Json.Value
-            Json.decodeString (jsonDataDecoder queryName) response.body
+            Json.Decode.decodeString (jsonDataDecoder queryName) response.body
 
 
-jsonDataDecoder : String -> Json.Decoder Json.Value
+jsonDataDecoder : String -> Json.Decode.Decoder Json.Decode.Value
 jsonDataDecoder queryName =
-    Json.at [ "data", queryName ] Json.value
+    Json.Decode.at [ "data", queryName ] Json.Decode.value

@@ -100,7 +100,7 @@ mapUrl mapName =
 storeItem : String -> KeyItem -> KeyMap -> KeyMap
 storeItem mapId item keyMap =
     if keyMap.id == mapId then
-        { keyMap | items = Maybe.map (\col -> col ++ [ item ]) keyMap.items }
+        { keyMap | items = Just <| item :: (Maybe.withDefault [] keyMap.items) }
     else
         keyMap
 
