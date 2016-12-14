@@ -21,6 +21,7 @@ type alias Model =
       ---------------------------------------
       authenticatedWith : Maybe Token
     , authEmail : Maybe String
+    , userId : Maybe Int
     , ---------------------------------------
       -- Dialogs
       ---------------------------------------
@@ -96,7 +97,6 @@ type Msg
       Confirm Bool
     | ConfirmToRemoveMap String
       -- Authentication
-    | Authenticate Token
     | Deauthenticate
     | HandleStartAuth (Result Http.Error ())
     | HandleExchangeAuth (Result Http.Error String)

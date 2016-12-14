@@ -1,6 +1,7 @@
 module Model.Update exposing (withMessage)
 
 import Auth.Start
+import Auth.Utils
 import Debug
 import Dict
 import Form exposing (Form)
@@ -67,11 +68,8 @@ withMessage msg model =
         ---------------------------------------
         -- Auth
         ---------------------------------------
-        Authenticate token ->
-            (!) { model | authenticatedWith = Just token } []
-
         Deauthenticate ->
-            (!) { model | authenticatedWith = Nothing } []
+            (!) { model | authEmail = Nothing, authenticatedWith = Nothing, userId = Nothing } []
 
         SetAuthEmail email ->
             (!) { model | authEmail = Just email } []
@@ -101,7 +99,10 @@ withMessage msg model =
         HandleExchangeAuth (Ok token) ->
             let
                 newModel =
-                    { model | authenticatedWith = Just token }
+                    { model
+                        | authenticatedWith = Just token
+                        , userId = Auth.Utils.getUserIdFromToken token
+                    }
             in
                 newModel
                     ! [ modifyUrl "/"

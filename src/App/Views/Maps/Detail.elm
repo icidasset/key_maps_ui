@@ -44,32 +44,39 @@ view model keyMap =
 
 configPanel : Model -> KeyMap -> Html Msg
 configPanel model keyMap =
-    div
-        [ class "blocks" ]
-        [ div
-            [ class "block" ]
+    let
+        url =
+            Model.Utils.buildLiveJsonUrl (Maybe.withDefault 0 model.userId) keyMap
+    in
+        div
+            [ class "blocks" ]
             [ div
-                [ class "block__list" ]
-                [ ul
-                    []
-                    [ li_a
-                        [ href "../../"
-                        , onClickPreventDefault GoToIndex
+                [ class "block" ]
+                [ div
+                    [ class "block__list" ]
+                    [ ul
+                        []
+                        [ li_a
+                            [ href "../../"
+                            , onClickPreventDefault GoToIndex
+                            ]
+                            [ span [] [ text "☜" ]
+                            , text "Index"
+                            ]
+                        , li_a
+                            [ href url, class "is-colored" ]
+                            [ text "Json Output" ]
+                        , li_a
+                            [ onClick (GoToEditMap keyMap.name) ]
+                            [ text "Edit map" ]
                         ]
-                        [ span [] [ text "☜" ]
-                        , text "Index"
-                        ]
-                    , li_a
-                        [ onClick (GoToEditMap keyMap.name) ]
-                        [ text "Edit map" ]
                     ]
                 ]
+            , blockRow
+                [ Html.map HandleCreateItemForm (addItemForm model keyMap) ]
+            , blockRow
+                [ Html.map HandleSortItemsForm (sortForm model keyMap) ]
             ]
-        , blockRow
-            [ Html.map HandleCreateItemForm (addItemForm model keyMap) ]
-        , blockRow
-            [ Html.map HandleSortItemsForm (sortForm model keyMap) ]
-        ]
 
 
 addItemForm : Model -> KeyMap -> Html Form.Msg

@@ -74,6 +74,14 @@ keyItemDecoder =
 -- Other
 
 
+buildLiveJsonUrl : Int -> KeyMap -> String
+buildLiveJsonUrl userId keyMap =
+    "https://keymaps.herokuapp.com/public/"
+        ++ toString userId
+        ++ "/"
+        ++ encodeMapName keyMap.name
+
+
 decodeMapName : String -> String
 decodeMapName encodedMapName =
     Maybe.withDefault "" (Http.decodeUri encodedMapName)

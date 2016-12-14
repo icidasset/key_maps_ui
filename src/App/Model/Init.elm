@@ -1,6 +1,7 @@
 module Model.Init exposing (..)
 
 import Auth.Flow exposing (authFlow)
+import Auth.Utils
 import Form
 import Form.Validate
 import Forms.Validation
@@ -35,6 +36,7 @@ withProgramFlags flags location =
               ---------------------------------------
               authenticatedWith = flags.authToken
             , authEmail = Nothing
+            , userId = Maybe.andThen Auth.Utils.getUserIdFromToken flags.authToken
             , ---------------------------------------
               -- Dialogs
               ---------------------------------------
