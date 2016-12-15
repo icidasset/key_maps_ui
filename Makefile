@@ -10,7 +10,7 @@ BUILD_DIR=./build
 all: build
 
 
-build: clean system elm css images
+build: clean system elm css
 
 
 build-production: build
@@ -47,12 +47,6 @@ elm:
 	fi
 
 
-images:
-	@echo "> Copying images"
-	@mkdir -p $(BUILD_DIR)/images
-	@cp icidasset-template/images/icons.svg $(BUILD_DIR)/images/icons.svg
-
-
 server:
 	@echo "> Booting up web server"
 	@stack build && stack exec server
@@ -66,7 +60,6 @@ system:
 systemWithProfiles:
 	@echo "> Compiling System (with stack-traces / profiles)"
 	@stack build --force-dirty --executable-profiling --library-profiling && stack exec build
-
 
 
 watch: build

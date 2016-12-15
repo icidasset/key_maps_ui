@@ -42,8 +42,9 @@ main =
 
 sequences :: IO [(String, Dictionary)]
 sequences = lsequence
-  [ ( "pages", process ["src/Pages/**/*.hs"] )
-  , ( "js",    process ["src/*.js"] >>= Shikensu.read )
+  [ ( "pages",  process ["src/Pages/**/*.hs"]                                   )
+  , ( "js",     process ["src/*.js"]                          >>= Shikensu.read )
+  , ( "images", process ["icidasset-template/images/**/*.*"]  >>= Shikensu.read )
   ]
 
 
@@ -62,7 +63,8 @@ flow deps ("pages", dict) =
     |> clone "200.html" "index.html"
 
 
-flow deps ("js", dict) = dict
+flow _ ("js", dict) = dict
+flow _ ("images", dict) = prefixDirname "images/" dict
 
 
 
