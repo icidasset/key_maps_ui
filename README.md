@@ -3,7 +3,6 @@ __A UI for [Key Maps](https://github.com/icidasset/key_maps).__
 
 ## Todo
 
-- Fix the remove action
 - Copy favicons to build directory
 - Context menu for map items (remove, edit)
 - Success notifications

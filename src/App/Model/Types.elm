@@ -141,6 +141,7 @@ type Page
       -- Errors
     | CouldNotLoadMap
     | CouldNotLoadMaps
+    | CouldNotRemoveMap
       -- Authentication
     | AuthExchangeFailure
     | AuthStartFailure

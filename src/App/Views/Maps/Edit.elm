@@ -56,7 +56,7 @@ leftSide model keyMap =
                         , text "Index"
                         ]
                     , li_a
-                        [ onClick (ConfirmToRemoveMap keyMap.id) ]
+                        [ onClickPreventDefault (ConfirmToRemoveMap keyMap.id) ]
                         [ text "Remove map" ]
                     ]
                 ]

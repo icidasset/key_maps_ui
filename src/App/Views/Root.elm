@@ -73,5 +73,8 @@ requireAuthentication model =
             CouldNotLoadMaps ->
                 Views.MessageScreen.view "Could not load maps."
 
+            CouldNotRemoveMap ->
+                Views.MessageScreen.view "Could not remove map."
+
             _ ->
                 text "Page not found."

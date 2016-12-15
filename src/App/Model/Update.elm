@@ -349,8 +349,7 @@ withMessage msg model =
             (!) model []
 
         RemoveMap (Err _) ->
-            {- TODO: Not sure what to do if the removal fails -}
-            (!) model []
+            (!) model [ modifyUrl "/errors/map/remove" ]
 
         -- GraphQL :: Update map
         UpdateMap (Ok value) ->
@@ -417,7 +416,6 @@ withMessage msg model =
                 (!) { model | collection = collection } []
 
         UpdateMapSettings (Err _) ->
-            {- TODO? -}
             (!) model []
 
         ---------------------------------------
