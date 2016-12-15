@@ -1,5 +1,6 @@
 module Views.Maps.Detail exposing (view)
 
+import ContextMenu
 import Dict exposing (Dict)
 import Form
 import Form.Input as Input
@@ -188,12 +189,18 @@ data model keyMap =
 
 dataItem : String -> KeyItemWithStringAttributes -> Html Msg
 dataItem sortBy item =
-    div
-        [ class "data-list__item" ]
-        (item.attributes
-            |> Dict.map (dataItemAttribute sortBy)
-            |> Dict.values
-        )
+    let
+        pointer =
+            { id = item.id, map_id = item.map_id }
+    in
+        div
+            [ class "data-list__item"
+            , ContextMenu.open ContextMenuMsg (MapItemContext pointer)
+            ]
+            (item.attributes
+                |> Dict.map (dataItemAttribute sortBy)
+                |> Dict.values
+            )
 
 
 dataItemAttribute : String -> String -> String -> Html Msg

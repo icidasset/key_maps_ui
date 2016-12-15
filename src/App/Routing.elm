@@ -38,6 +38,7 @@ route =
           -- Errors
         , map CouldNotLoadMaps (s "errors" </> s "maps")
         , map CouldNotLoadMap (s "errors" </> s "map")
+        , map CouldNotRemoveItem (s "errors" </> s "item" </> s "remove")
         , map CouldNotRemoveMap (s "errors" </> s "map" </> s "remove")
           --
         , map DetailMap (s "maps" </> string)

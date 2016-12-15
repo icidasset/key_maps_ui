@@ -1,11 +1,12 @@
 module Model.Init exposing (..)
 
+import ContextMenu
 import Auth.Flow exposing (authFlow)
 import Auth.Utils
 import Form
 import Form.Validate
 import Forms.Validation
-import Model.Types exposing (Model, Msg)
+import Model.Types exposing (Model, Msg(..))
 import Navigation
 import Routing
 import Set
@@ -23,6 +24,11 @@ withProgramFlags flags location =
         emptyKeyItemForm =
             Forms.Validation.keyItemForm (Form.Validate.succeed [])
 
+        {- Context menu -}
+        ( contextMenu, contextMsg ) =
+            ContextMenu.init
+
+        {- Model -}
         model =
             { apiHost = "https://keymaps.herokuapp.com"
             , collection = []
@@ -38,9 +44,10 @@ withProgramFlags flags location =
             , authEmail = Nothing
             , userId = Maybe.andThen Auth.Utils.getUserIdFromToken flags.authToken
             , ---------------------------------------
-              -- Dialogs
+              -- Dialogs & menus
               ---------------------------------------
               confirm = Nothing
+            , contextMenu = contextMenu
             , ---------------------------------------
               -- Forms
               ---------------------------------------
@@ -52,5 +59,11 @@ withProgramFlags flags location =
             , editMapServerError = Nothing
             , sortItemsForm = Form.initial [] Forms.Validation.sortItemsForm
             }
+
+        {- Auth flow -}
+        ( modelAfterAuthFlow, cmdAfterAuthFlow ) =
+            authFlow model location
     in
-        authFlow model location
+        (!)
+            modelAfterAuthFlow
+            [ cmdAfterAuthFlow, Cmd.map ContextMenuMsg contextMsg ]

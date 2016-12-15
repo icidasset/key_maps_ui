@@ -1,5 +1,6 @@
 module Model.Types exposing (..)
 
+import ContextMenu exposing (ContextMenu)
 import Dict exposing (Dict)
 import Form exposing (Form)
 import Forms.Types exposing (..)
@@ -23,9 +24,10 @@ type alias Model =
     , authEmail : Maybe String
     , userId : Maybe Int
     , ---------------------------------------
-      -- Dialogs
+      -- Dialogs & menus
       ---------------------------------------
       confirm : Maybe Confirmation
+    , contextMenu : ContextMenu Context
     , ---------------------------------------
       -- Forms
       ---------------------------------------
@@ -88,14 +90,22 @@ type alias KeyItemWithStringAttributes =
     }
 
 
+type alias KeyItemPointer =
+    { id : String
+    , map_id : String
+    }
+
+
 
 -- Messages
 
 
 type Msg
-    = -- Dialogs
+    = -- Dialogs & menus
       Confirm Bool
+    | ConfirmToRemoveItem String String
     | ConfirmToRemoveMap String
+    | ContextMenuMsg (ContextMenu.Msg Context)
       -- Authentication
     | Deauthenticate
     | HandleStartAuth (Result Http.Error ())
@@ -114,10 +124,12 @@ type Msg
     | LoadMaps GraphQLResult
     | LoadMapItems GraphQLResult
     | RemoveMap GraphQLResult
+    | RemoveMapItem GraphQLResult
     | UpdateMap GraphQLResult
     | UpdateMapSettings GraphQLResult
       -- GraphQL :: Execution
     | ExecRemoveMap String
+    | ExecRemoveMapItem String String
       -- Navigation
     | GoToEditMap String
     | GoToIndex
@@ -141,9 +153,18 @@ type Page
       -- Errors
     | CouldNotLoadMap
     | CouldNotLoadMaps
+    | CouldNotRemoveItem
     | CouldNotRemoveMap
       -- Authentication
     | AuthExchangeFailure
     | AuthStartFailure
     | AuthStartSuccess
     | SignIn
+
+
+
+-- Context
+
+
+type Context
+    = MapItemContext KeyItemPointer

@@ -2,6 +2,7 @@ module Model.Update exposing (withMessage)
 
 import Auth.Start
 import Auth.Utils
+import ContextMenu
 import Debug
 import Dict
 import Form exposing (Form)
@@ -38,7 +39,7 @@ withMessage : Msg -> Model -> ( Model, Cmd Msg )
 withMessage msg model =
     case msg of
         ---------------------------------------
-        -- Dialogs
+        -- Dialogs & menus
         ---------------------------------------
         Confirm bool ->
             let
@@ -60,10 +61,24 @@ withMessage msg model =
                             Cmd.none
                     ]
 
+        ConfirmToRemoveItem mapId itemId ->
+            (!)
+                { model | confirm = Just { ok = ExecRemoveMapItem mapId itemId } }
+                [ Ports.askForConfirmation "Are you sure you want to remove this item?" ]
+
         ConfirmToRemoveMap id ->
             (!)
                 { model | confirm = Just { ok = ExecRemoveMap id } }
                 [ Ports.askForConfirmation "Are you sure you want to remove this map?" ]
+
+        ContextMenuMsg contextMsg ->
+            let
+                ( contextMenu, contextCmd ) =
+                    ContextMenu.update contextMsg model.contextMenu
+            in
+                (!)
+                    { model | contextMenu = contextMenu }
+                    [ Cmd.map ContextMenuMsg contextCmd ]
 
         ---------------------------------------
         -- Auth
@@ -230,6 +245,24 @@ withMessage msg model =
                 , modifyUrl "/"
                 ]
 
+        ExecRemoveMapItem mapId itemId ->
+            let
+                mapFn =
+                    \c ->
+                        if c.id == mapId then
+                            { c
+                                | items =
+                                    Maybe.map
+                                        (List.filter (\i -> i.id /= itemId))
+                                        (c.items)
+                            }
+                        else
+                            c
+            in
+                (!)
+                    { model | collection = List.map mapFn model.collection }
+                    [ GraphQL.Mutations.removeMapItem model itemId ]
+
         -- GraphQL :: Create map
         CreateMap (Ok value) ->
             let
@@ -345,11 +378,17 @@ withMessage msg model =
 
         -- GraphQL :: Remove map
         RemoveMap (Ok _) ->
-            {- Nothing needs to happen, silently remove -}
             (!) model []
 
         RemoveMap (Err _) ->
             (!) model [ modifyUrl "/errors/map/remove" ]
+
+        -- GraphQL :: Remove map item
+        RemoveMapItem (Ok _) ->
+            (!) model []
+
+        RemoveMapItem (Err _) ->
+            (!) model [ modifyUrl "/errors/item/remove" ]
 
         -- GraphQL :: Update map
         UpdateMap (Ok value) ->

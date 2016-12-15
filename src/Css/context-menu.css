@@ -1,0 +1,24 @@
+/**
+ * This sucks, but I don't want to write my own custom contextMenu package.
+ *
+ * ¯\_(ツ)_/¯
+ */
+.context-menu > div {
+  border: 0 !important;
+  box-shadow: 0 1px 1px 0px rgba(0, 0, 0, 0.175),
+              0 -1px 1px 0px rgba(0, 0, 0, 0.05) !important;
+  font-family: inherit !important;
+  font-size: .85rem !important;
+  padding: 0 !important;
+  position: absolute !important;
+
+  & > div {
+    border-top: 1px solid transparent;
+    height: auto !important;
+    padding: .5gr 1gr !important;
+  }
+
+  & > div > div {
+    line-height: inherit !important;
+  }
+}

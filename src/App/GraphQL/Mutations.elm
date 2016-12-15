@@ -118,6 +118,22 @@ removeMap model mapId =
         [ ( "id", Json.string mapId ) ]
 
 
+removeMapItem : Model -> String -> Cmd Msg
+removeMapItem model itemId =
+    query
+        RemoveMapItem
+        model
+        "removeMapItem"
+        """
+          mutation _ ($id: String) {
+            removeMapItem (id: $id) {
+              id
+            }
+          }
+        """
+        [ ( "id", Json.string itemId ) ]
+
+
 updateMap : Model -> Cmd Msg
 updateMap model =
     let
