@@ -180,7 +180,7 @@ data model keyMap =
         if List.isEmpty items then
             div
                 []
-                [ em [] [ text "No items found" ] ]
+                [ em [] [ text "No items found." ] ]
         else
             div
                 [ class "data-list" ]
