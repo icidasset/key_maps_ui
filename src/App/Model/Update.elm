@@ -105,9 +105,9 @@ withMessage msg model =
                 { model | isLoading = False, errorState = err }
                 [ newUrl "/auth/start/error" ]
 
-        HandleStartAuth (Err err) ->
+        HandleStartAuth (Err _) ->
             (!)
-                { model | isLoading = False, errorState = toString err }
+                { model | isLoading = False, errorState = genericError }
                 [ newUrl "/auth/start/error" ]
 
         -- Auth :: Exchange
