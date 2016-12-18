@@ -30,7 +30,7 @@ withProgramFlags flags location =
 
         {- Model -}
         model =
-            { apiHost = "https://keymaps.herokuapp.com"
+            { apiHost = location.protocol ++ "//keymaps.herokuapp.com"
             , collection = []
             , currentPage = Routing.locationToPage location
             , errorState = ""
