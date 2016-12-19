@@ -21,7 +21,7 @@ view model =
             [ div
                 [ class "block" ]
                 [ div
-                    [ class "block__text" ]
+                    [ class "block__input" ]
                     (List.map (Html.map HandleCreateMapForm) (sidebar model))
                 ]
             , div

@@ -29,7 +29,7 @@ view model keyMap =
                     [ class "is-more-subtle block__title" ]
                     [ text "Edit" ]
                 , div
-                    [ class "block__text" ]
+                    [ class "block__input" ]
                     [ Html.map HandleEditMapForm (rightSide model keyMap) ]
                 ]
             ]
