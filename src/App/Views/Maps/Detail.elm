@@ -92,7 +92,7 @@ addItemForm model keyMap =
         Html.form
             [ onSubmit Form.Submit ]
             [ div
-                []
+                [ class "block__text" ]
                 (List.map
                     (\attr ->
                         let
@@ -140,7 +140,7 @@ sortForm model keyMap =
             [ class "is-subtle" ]
             [ text "Sort by" ]
         , div
-            [ class "select-box" ]
+            [ class "block__text select-box" ]
             [ Input.selectInput
                 (List.map (\a -> ( a, a )) keyMap.attributes)
                 (Form.getFieldAsString "sortBy" model.sortItemsForm)

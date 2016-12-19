@@ -28,7 +28,9 @@ view model keyMap =
                 [ h2
                     [ class "is-more-subtle block__title" ]
                     [ text "Edit" ]
-                , Html.map HandleEditMapForm (rightSide model keyMap)
+                , div
+                    [ class "block__text" ]
+                    [ Html.map HandleEditMapForm (rightSide model keyMap) ]
                 ]
             ]
         ]

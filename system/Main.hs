@@ -58,6 +58,7 @@ flow deps ("pages", dict) =
     |> copyPropsToMetadata
     |> insertMetadata deps
     |> insertMetadata (HashMap.singleton "category" "Storage")
+    |> insertMetadata (HashMap.singleton "title" "Storage")
     |> renderContent (Renderers.Lucid.catalogRenderer Catalogs.pages)
     |> renderContent (Renderers.Lucid.renderer Layouts.Application.template)
     |> clone "200.html" "index.html"
