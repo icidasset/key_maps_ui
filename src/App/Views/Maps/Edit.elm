@@ -55,7 +55,7 @@ leftSide model keyMap =
                         , onClickPreventDefault (GoToMap keyMap.name)
                         ]
                         [ span [] [ text "☜" ]
-                        , text "Index"
+                        , text "Map"
                         ]
                     , li_a
                         [ onClickPreventDefault (ConfirmToRemoveMap keyMap.id) ]
